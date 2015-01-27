@@ -1,4 +1,7 @@
 alias "core" :
     # Run all test-*.cpp files in this directory and core/ as tests.
     [ run_glob test-*.cpp core/test-*.cpp ]
+
+    # Run tests that require example automata.
+    with_examples
     ;

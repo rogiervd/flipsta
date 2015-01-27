@@ -1,0 +1,13 @@
+# Many of the tests require example automata.
+# They are produced by example_automata.cpp
+lib example_automata : example_automata.cpp ;
+
+project :
+    requirements
+    <library>example_automata
+    ;
+
+alias "tests_with_examples" :
+    # Run all test-*.cpp files in this directory as tests.
+    [ run_glob test-*.cpp ]
+    ;
