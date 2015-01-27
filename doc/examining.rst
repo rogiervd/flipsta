@@ -22,11 +22,21 @@ Traversing an automaton
 =======================
 
 For various algorithms it is important to traverse automata in a specific order.
-For example, finding the shortest distance in an acyclic automaton traverses the automaton in topological order.
+For example, finding the shortest distance in an acyclic automaton traverses the automaton in :ref:`topological order <topological_order>`.
 The standard algorithm for finding the topological order uses :ref:`depth-first traversal <depth_first_traversal>`.
 
 The standard return value for a function that traverses an automaton is a, possibly lazy, range of states.
 (Using callback functions would be possible, but this would be more cumbersome to use.)
+
+.. _topological_order:
+
+Topological order
+-----------------
+
+A topological order is an order of the states of an automaton in which for each transition the source comes before the destination.
+It is possible to order the states iff the automaton is acyclic.
+
+.. doxygenvariable:: flipsta::topologicalOrder
 
 .. _depth_first_traversal:
 
