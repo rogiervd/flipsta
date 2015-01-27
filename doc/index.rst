@@ -18,6 +18,7 @@ Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
     examining.rst
 
     defining.rst
+    helper.rst
 
 .. rubric:: Design
 
