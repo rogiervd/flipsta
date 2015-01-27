@@ -15,6 +15,7 @@ Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
 
     label.rst
     automaton.rst
+    examining.rst
 
     defining.rst
 
