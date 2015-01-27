@@ -1,4 +1,4 @@
 alias "core" :
-    # Run all .cpp files in this directory as tests.
-    [ run_glob *.cpp ]
+    # Run all test-*.cpp files in this directory and core/ as tests.
+    [ run_glob test-*.cpp core/test-*.cpp ]
     ;
