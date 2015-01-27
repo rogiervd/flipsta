@@ -1,0 +1,15 @@
+project /flipsta :
+    requirements
+    <library>/meta//meta
+    <library>/utility//utility
+    <library>/rime//rime
+    <library>/range//range
+    <library>/parse_ll//parse_ll
+    <library>/math//math
+    ;
+
+alias flipsta : : :
+    :   # Usage requirements
+        <include>include
+        <cxxflags>"-std=c++0x"
+    ;
