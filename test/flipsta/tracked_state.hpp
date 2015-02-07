@@ -38,4 +38,10 @@ public:
     operator int() const { return value_.content(); }
 };
 
+// Compute hash for Boost.Hash.
+inline std::size_t hash_value (TrackedState const & s) {
+    boost::hash <int> hasher;
+    return hasher (s.value());
+}
+
 #endif // FLIPSTA_TEST_TRACKED_STATE_HPP_INCLUDED
