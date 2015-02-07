@@ -39,6 +39,7 @@ it should be fine.
 #include <memory>
 #include <algorithm>
 #include <random>
+#include <iostream>
 
 #include "range/core.hpp"
 #include "range/walk_size.hpp"

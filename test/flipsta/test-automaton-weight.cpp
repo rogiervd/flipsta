@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "flipsta/automaton.hpp"
 
+#include <iostream>
+
 #include "range/core.hpp"
 #include "range/for_each_macro.hpp"
 #include "range/walk_size.hpp"

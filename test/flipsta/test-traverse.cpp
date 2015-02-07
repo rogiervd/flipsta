@@ -29,6 +29,8 @@ It may be better to formulate invariants that must be satisfied instead.
 
 #include "flipsta/traverse.hpp"
 
+#include <iostream>
+
 #include "math/arithmetic_magma.hpp"
 
 #include "flipsta/automaton.hpp"
