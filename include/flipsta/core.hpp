@@ -90,12 +90,34 @@ automaton.
 static constexpr Backward backward = {};
 
 /**
+\brief Evaluate to the opposite direction: \ref Forward if \a Direction is
+\ref Backward and vice versa.
+*/
+template <class Direction> struct Opposite;
+
+/// \cond DONT_DOCUMENT
+template <> struct Opposite <Forward> { typedef Backward type; };
+template <> struct Opposite <Backward> { typedef Forward type; };
+/// \endcond
+
+/**
 \brief Return the opposite direction.
 
 E.g. <c>opposite (forward)</c> returns \c backward and vice versa.
 */
-Backward opposite (Forward) { return Backward(); }
-Forward opposite (Backward) { return Forward(); }
+inline Backward opposite (Forward) { return Backward(); }
+inline Forward opposite (Backward) { return Forward(); }
+
+/** \brief
+Evaluate to math::left if \a Direction is \ref Forward, and to math::right if
+\a Direction is \ref Backward.
+*/
+template <class Direction> struct MathDirection;
+
+/// \cond DONT_DOCUMENT
+template <> struct MathDirection <Forward> { typedef math::left type; };
+template <> struct MathDirection <Backward> { typedef math::right type; };
+/// \endcond
 
 /* Operations */
 

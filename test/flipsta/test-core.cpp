@@ -44,6 +44,23 @@ using flipsta::Backward;
 
 namespace callable = flipsta::callable;
 
+BOOST_AUTO_TEST_CASE (test_direction) {
+    static_assert (flipsta::IsDirection <Forward>::value, "");
+    static_assert (flipsta::IsDirection <Backward>::value, "");
+    static_assert (!flipsta::IsDirection <void>::value, "");
+    static_assert (!flipsta::IsDirection <int>::value, "");
+
+    static_assert (std::is_same <
+        flipsta::Opposite <Forward>::type, Backward>::value, "");
+    static_assert (std::is_same <
+        flipsta::Opposite <Backward>::type, Forward>::value, "");
+
+    static_assert (std::is_same <
+        decltype (flipsta::opposite (forward)), Backward>::value, "");
+    static_assert (std::is_same <
+        decltype (flipsta::opposite (backward)), Forward>::value, "");
+}
+
 BOOST_AUTO_TEST_CASE (test_operations) {
     static_assert (!Has <callable::Tag (NotAnAutomaton)>::value, "");
 
