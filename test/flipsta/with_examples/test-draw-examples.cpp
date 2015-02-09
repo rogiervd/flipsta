@@ -25,8 +25,9 @@ This test does not actually test whether the format is correct at all, just
 whether draw() runs.
 If no argument is given on the command line, then the output goes into a
 stringstream and then disappears.
-If one argument is given on the command line, this is the name of the output
-file.
+If two arguments are given on the command line, the first is assumed to be the
+index of the automaton that should be output to a file, and the second the name
+of the output file.
 This can then be run through Graphviz dot, assuming it is installed, and it can
 be checked that it actually does the right thing.
 */
@@ -38,30 +39,51 @@ be checked that it actually does the right thing.
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include "example_automata.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_draw_examples)
 
+/**
+Output \a automaton to a file if \a index is equal to \a automatonIndex, and to
+a stringstream if not.
+*/
+template <class Automaton> inline
+    void testDraw (int index, std::string const & fileName,
+        int automatonIndex, Automaton const & automaton)
+{
+    if (index == automatonIndex) {
+        std::ofstream outputFile (fileName.c_str());
+        flipsta::draw (outputFile, automaton);
+    } else {
+        std::stringstream output;
+        flipsta::draw (output, automaton);
+    }
+}
+
 BOOST_AUTO_TEST_CASE (testDrawExamples) {
     int argc = boost::unit_test::framework::master_test_suite().argc;
     char ** argv = boost::unit_test::framework::master_test_suite().argv;
 
-    if (argc >= 2) {
-        std::ofstream outputFile (argv [1]);
-        flipsta::draw (outputFile, acyclicExample());
-    } else {
-        std::stringstream output;
-        flipsta::draw (output, acyclicExample());
+    int index = -1;
+    std::string fileName;
+    if (argc == 3) {
+        index = std::atoi (argv [1]);
+        fileName = argv [2];
+        std::cout << "Outputting automaton " << index << " to file "
+            << fileName << std::endl;
     }
 
-    if (argc >= 3) {
-        std::ofstream outputFile (argv [2]);
-        flipsta::draw (outputFile, acyclicSequenceExample());
-    } else {
-        std::stringstream output;
-        flipsta::draw (output, acyclicSequenceExample());
-    }
+    testDraw (index, fileName, 1, acyclicExample());
+    testDraw (index, fileName, 2, acyclicSequenceExample());
+
+    testDraw (index, fileName, 3, prefixExample());
+    testDraw (index, fileName, 4, suffixExample());
+
+    auto alphabet = std::make_shared <math::alphabet <std::string>>();
+    testDraw (index, fileName, 5, hypothesisExample (alphabet));
+    testDraw (index, fileName, 7, referenceExample (alphabet));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

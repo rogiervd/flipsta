@@ -53,6 +53,18 @@ flipsta::Automaton <char,
         math::cost <float>, math::single_sequence <char>>>>
     acyclicSequenceExample();
 
+/**
+Example automaton that has paths with a common prefix of one character.
+*/
+flipsta::Automaton <int, math::single_sequence <char, math::left>>
+    prefixExample();
+
+/**
+Example automaton that has paths with a common suffix of two characters.
+*/
+flipsta::Automaton <int, math::single_sequence <char, math::right>>
+    suffixExample();
+
 flipsta::Automaton <int, math::optional_sequence <std::string>>
     hypothesisExample (std::shared_ptr <math::alphabet <std::string>>);
 
