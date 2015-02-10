@@ -16,6 +16,7 @@ Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
     label.rst
     automaton.rst
     examining.rst
+    shortest_distance.rst
 
     defining.rst
     helper.rst
