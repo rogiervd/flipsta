@@ -20,23 +20,47 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FLIPSTA_ARC_HPP_INCLUDED
 #define FLIPSTA_ARC_HPP_INCLUDED
 
+#include "core.hpp"
+
 namespace flipsta {
 
-/**
-\brief An arc type that stores its data explicitly.
+/** \brief
+An arc type for automata that stores its data explicitly.
+
+And arc is characterised by three pieces of information, which this class holds
+explicitly:
+\li The state it comes from, the source state.
+\li The state it goes to, the destination state.
+\li The label on the arc.
 
 \tparam State The type of the states.
 \tparam Label The type of the label.
 */
-template <class State, class Label> class ExplicitArc {
+template <class State_, class Label_> class ExplicitArc {
+public:
+    /// The type of the states.
+    typedef State_ State;
+    /// The type of the label.
+    typedef Label_ Label;
+private:
     State source_;
     State destination_;
     Label label_;
 
 public:
+    /** \brief
+    Construct with the data explicitly.
+    */
     ExplicitArc (State const & source, State const & destination,
         Label const & label)
     : source_ (source), destination_ (destination), label_ (label) {}
+
+    /** \brief
+    Construct by copying the data from another arc.
+    */
+    template <class OtherArc> explicit ExplicitArc (OtherArc const & other)
+    : source_ (other.state (backward)), destination_ (other.state (forward)),
+        label_ (other.label()) {}
 
     /**
     \brief Returns the source state.
