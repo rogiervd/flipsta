@@ -24,4 +24,7 @@ project
 
     ;
 
-alias "flipsta-tests" : flipsta ;
+alias "flipsta-tests" :
+    flipsta
+    flipsta-python
+    ;

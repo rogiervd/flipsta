@@ -13,3 +13,5 @@ alias flipsta : : :
         <include>include
         <cxxflags>"-std=c++0x"
     ;
+
+alias flipsta-python : ./source/flipsta-python//flipsta ;

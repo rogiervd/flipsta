@@ -1,0 +1,24 @@
+import python ;
+
+project
+    : requirements
+      <library>/boost//python
+    ;
+
+local rule run-test ( test-name : sources + )
+{
+    import testing ;
+    testing.make-test run-pyd : $(sources) : : $(test-name) ;
+}
+
+run-test test-semiring :
+    /flipsta//flipsta-python test-semiring.py ;
+
+run-test test-viterbi_semiring :
+    /flipsta//flipsta-python viterbi_semiring.py ;
+
+run-test test-automaton :
+    /flipsta//flipsta-python test-automaton.py ;
+
+run-test test-automaton-viterbi :
+    /flipsta//flipsta-python test-automaton-viterbi.py ;

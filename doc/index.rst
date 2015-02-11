@@ -13,6 +13,8 @@ Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
 .. toctree::
     :maxdepth: 2
 
+    python.rst
+
     label.rst
     automaton.rst
     examining.rst

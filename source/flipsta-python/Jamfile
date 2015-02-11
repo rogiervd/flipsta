@@ -1,0 +1,20 @@
+import python ;
+
+project test-flipsta-python
+    : requirements
+      <library>/boost//python
+      <library>/flipsta//flipsta
+    ;
+
+python-extension flipsta :
+    # semiring.cpp causes issues on Clang 3.0: if it is compiled with
+    # optimisation, the extension segfaults when used from Python.
+    # Therefore, optimisation is switched off.
+    [ obj semiring : semiring.cpp :
+        <toolset>clang-3.0:<optimization>off
+        <use>/python//python_for_extensions
+    ]
+    automaton.cpp
+    error.cpp
+    module.cpp
+    ;
