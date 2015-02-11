@@ -754,11 +754,37 @@ namespace transformation {
             explicit ConvertStateAndLabel (ConvertLabel convertLabel)
             : convertLabel (convertLabel) {}
 
+            // The pair coming in is not necessarily a pair.
+            // It may have to be consumed carefully to make sure that this also
+            // works on a range that allows traversal only once.
+            template <class StateAndLabel_> struct result {
+                typedef typename range::result_of <
+                        range::callable::view_once (StateAndLabel_)>::type
+                    StateAndLabel;
+                typedef typename range::result_of <range::callable::first (
+                    StateAndLabel const &)>::type State;
+                typedef typename range::result_of <
+                    range::callable::first (range::callable::drop (
+                        StateAndLabel &&))>::type Label;
+                typedef typename std::result_of <ConvertLabel const (Label)
+                    >::type ConvertedLabel;
+
+                typedef range::tuple <typename std::decay <State>::type,
+                    typename std::decay <ConvertedLabel>::type> type;
+            };
+
             template <class StateAndLabel>
-                auto operator() (StateAndLabel const & stateAndLabel) const
-            RETURNS (range::make_tuple (
-                range::first (stateAndLabel),
-                convertLabel (range::second (stateAndLabel))));
+                typename result <StateAndLabel>::type
+                operator() (StateAndLabel && stateAndLabel) const
+            {
+                auto view = range::view_once (
+                    std::forward <StateAndLabel> (stateAndLabel));
+                auto state = range::first (view);
+                auto label = convertLabel (range::first (range::drop (
+                    std::move (view))));
+                return typename result <StateAndLabel>::type (
+                    std::move (state), std::move (label));
+            }
         };
 
     public:
