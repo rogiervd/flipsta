@@ -145,7 +145,7 @@ namespace callable {
                 auto compress = flipsta::tag (automaton).compress();
                 auto compressedInitialStates =
                     transformation::TransformLabelsForStates() (
-                        compress, initialStates);
+                        compress, std::forward <InitialStates> (initialStates));
 
                 // Return the expanded version of the compressed states.
                 // Use the tag before moving the automaton.
@@ -154,7 +154,7 @@ namespace callable {
                     implementation;
                 return transformation::TransformLabelsForStates() (expand,
                     implementation (std::forward <Automaton> (automaton),
-                        compressedInitialStates, direction));
+                        std::move (compressedInitialStates), direction));
             }
         };
 
