@@ -12,13 +12,13 @@ local rule run-test ( test-name : sources + )
 }
 
 run-test test-semiring :
-    /flipsta//flipsta-python test-semiring.py ;
+    /flipsta//flipsta-python test-semiring.py cost.py ;
 
 run-test test-viterbi_semiring :
     /flipsta//flipsta-python viterbi_semiring.py ;
 
 run-test test-automaton :
-    /flipsta//flipsta-python test-automaton.py ;
+    /flipsta//flipsta-python test-automaton.py cost.py ;
 
 run-test test-automaton-viterbi :
-    /flipsta//flipsta-python test-automaton-viterbi.py ;
+    /flipsta//flipsta-python test-automaton-viterbi.py viterbi_semiring.py ;

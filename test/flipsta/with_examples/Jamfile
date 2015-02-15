@@ -7,7 +7,4 @@ project :
     <library>example_automata
     ;
 
-alias "tests_with_examples" :
-    # Run all test-*.cpp files in this directory as tests.
-    [ run_glob test-*.cpp ]
-    ;
+run_glob test-*.cpp ;

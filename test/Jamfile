@@ -2,7 +2,7 @@ import testing ;
 
 project
     : requirements
-      <library>/boost/test//boost_unit_test_framework
+      <library>/boost//unit_test_framework
       <library>/flipsta//flipsta
       <warnings-as-errors>on
       <c++-template-depth>1024
@@ -24,7 +24,5 @@ project
 
     ;
 
-alias "flipsta-tests" :
-    flipsta
-    flipsta-python
-    ;
+build-project flipsta ;
+build-project flipsta-python ;

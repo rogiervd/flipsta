@@ -1,6 +1,6 @@
 import python ;
 
-project test-flipsta-python
+project flipsta-python
     : requirements
       <library>/boost//python
       <library>/flipsta//flipsta

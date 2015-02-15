@@ -1,11 +1,12 @@
-project /flipsta :
-    requirements
-    <library>/meta//meta
-    <library>/utility//utility
-    <library>/rime//rime
-    <library>/range//range
-    <library>/parse_ll//parse_ll
-    <library>/math//math
+project /flipsta
+    : requirements
+      <use>/boost//headers
+      <library>/meta//meta
+      <library>/utility//utility
+      <library>/rime//rime
+      <library>/range//range
+      <library>/parse_ll//parse_ll
+      <library>/math//math
     ;
 
 alias flipsta : : :

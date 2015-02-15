@@ -1,7 +1,6 @@
-alias "core" :
-    # Run all test-*.cpp files in this directory and core/ as tests.
-    [ run_glob test-*.cpp core/test-*.cpp ]
+build-project core ;
 
-    # Run tests that require example automata.
-    with_examples
-    ;
+run_glob test-*.cpp ;
+
+# Run tests that require example automata.
+build-project with_examples ;
