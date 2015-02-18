@@ -6,6 +6,7 @@ project :
     ;
 
 exe test-symbol_table : test-symbol_table.cpp ;
+exe test-automaton : test-automaton.cpp ;
 
 run test-symbol_table :
     --with_empty : ./example/symbols.txt :
@@ -25,3 +26,8 @@ run test-symbol_table :
 run test-symbol_table :
     --fail : ./example/symbols-with_duplicate_index.txt :
     : read-symbol_table-with_duplicate_index ;
+
+run test-automaton :
+    : ./example/reference.txt ./example/symbols.txt :
+    : read-automaton-reference
+    ;
