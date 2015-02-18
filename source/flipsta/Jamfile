@@ -1,0 +1,6 @@
+# This merely gives the sources;
+# ../../Jamfile constructs the library out of this.
+alias flipsta :
+    [ glob *.cpp ]
+    [ glob att/*.cpp ]
+    ;

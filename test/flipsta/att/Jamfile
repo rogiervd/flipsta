@@ -1,0 +1,27 @@
+project :
+    requirements
+    # Use the Flipsta shared library.
+    # (The inherited requirements only contain the includes.)
+    <library>/flipsta//flipsta
+    ;
+
+exe test-symbol_table : test-symbol_table.cpp ;
+
+run test-symbol_table :
+    --with_empty : ./example/symbols.txt :
+    : read-symbol_table-ok ;
+run test-symbol_table :
+    --without_empty : ./example/symbols-without_0.txt :
+    : read-symbol_table-without_0 ;
+run test-symbol_table :
+    --fail : ./example/symbols-without_0-1.txt :
+    : read-symbol_table-without_0-1 ;
+run test-symbol_table :
+    --fail : ./example/symbols-without_5.txt :
+    : read-symbol_table-without_5 ;
+run test-symbol_table :
+    --fail : ./example/symbols-with_duplicate_name.txt :
+    : read-symbol_table-with-duplicate-name ;
+run test-symbol_table :
+    --fail : ./example/symbols-with_duplicate_index.txt :
+    : read-symbol_table-with_duplicate_index ;

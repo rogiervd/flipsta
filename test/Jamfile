@@ -3,7 +3,8 @@ import testing ;
 project
     : requirements
       <library>/boost//unit_test_framework
-      <library>/flipsta//flipsta
+      # Use the Flipsta includes, but not the shared library.
+      <use>/flipsta//flipsta
       <warnings-as-errors>on
       <c++-template-depth>1024
 

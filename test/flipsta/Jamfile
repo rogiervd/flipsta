@@ -4,3 +4,5 @@ run_glob test-*.cpp ;
 
 # Run tests that require example automata.
 build-project with_examples ;
+
+build-project att ;

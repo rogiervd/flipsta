@@ -72,6 +72,13 @@ template <class State> inline
     errorInfoState (State const & state)
 { return typename TagErrorInfoStateType <State>::type (state); }
 
+/** \brief
+Give as much explanation about the exception as possible.
+
+This mostly deals
+*/
+void explainException (std::ostream &, boost::exception const &);
+
 } // namespace flipsta
 
 #endif // FLIPSTA_ERROR_HPP_INCLUDED

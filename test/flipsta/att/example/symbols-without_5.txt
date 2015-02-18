@@ -1,0 +1,11 @@
+f 9
+<del> 1
+<ins> 2
+a 4
+<sub> 3
+c 6
+d 7
+<eps> 0
+e 8
+g 10
+sil 11

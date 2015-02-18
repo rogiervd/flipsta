@@ -9,7 +9,13 @@ project /flipsta
       <library>/math//math
     ;
 
-alias flipsta : : :
+lib flipsta
+    :   # Sources
+        ./source/flipsta//flipsta
+    :   # Requirements
+        <include>include
+        <link>shared
+    :   # Default build
     :   # Usage requirements
         <include>include
         <cxxflags>"-std=c++0x"
