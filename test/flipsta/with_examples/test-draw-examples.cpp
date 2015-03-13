@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE (testDrawExamples) {
 
     auto alphabet = std::make_shared <math::alphabet <std::string>>();
     testDraw (index, fileName, 5, hypothesisExample (alphabet));
-    testDraw (index, fileName, 7, referenceExample (alphabet));
+    testDraw (index, fileName, 6, referenceExample (alphabet));
 }
 
 BOOST_AUTO_TEST_SUITE_END()
