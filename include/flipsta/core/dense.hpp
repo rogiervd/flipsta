@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FLIPSTA_CORE_DENSE_HPP_INCLUDED
 #define FLIPSTA_CORE_DENSE_HPP_INCLUDED
 
+#include <limits>
+
 #include <boost/functional/hash_fwd.hpp>
 
 namespace flipsta {
