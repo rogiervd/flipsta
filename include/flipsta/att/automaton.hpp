@@ -111,7 +111,7 @@ namespace detail {
 /** \brief
 Read an automaton from a file in AT&T format.
 
-The weights are currently assumed to be StdWeights, i.e. math::cost <double>.
+The weights are currently assumed to be StdWeights, i.e. math::cost \<double>.
 
 The symbol tables can be the same, if the input and output alphabets are the
 same.
@@ -121,7 +121,7 @@ an alphabet needs to be passed to the automaton's label tag.
 Allow for these two cases:
 \li The symbols in the file are strings, but the symbol table should be built as
     the symbols are encountered.
-    This should be initialised with an empty symbol (<eps>, typically).
+    This should be initialised with an empty symbol (\<eps>, typically).
 \li The symbols in the file are dense integers, and should be saved as such.
     In that case, there should be no alphabet tag at all, and "0" should map to
     the empty sequence.
