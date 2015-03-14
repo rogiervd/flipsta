@@ -32,15 +32,13 @@ Provide hash_value for types that Boost does not provide it for.
 namespace boost {
 
     // Support for std::shared_ptr was added in Boost 1.51.0.
-    // For reasons unknown to me, Clang 3.5 does not seem to pick up that
-    // definition.
 #if (BOOST_VERSION < 105100) || defined (__clang__)
-    template <class Pointee>
-        inline std::size_t hash_value (std::shared_ptr <Pointee> const & p)
-    {
-        boost::hash <Pointee *> hasher;
-        return hasher (p.get());
-    }
+    template <class Pointee> struct hash <std::shared_ptr <Pointee>> {
+        std::size_t operator() (std::shared_ptr <Pointee> const & p) const {
+            boost::hash <Pointee *> hasher;
+            return hasher (p.get());
+        }
+    };
 #endif
 
 } // namespace boost
