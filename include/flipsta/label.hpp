@@ -371,17 +371,17 @@ namespace label {
     /* CompositeTag. */
     template <class ... Tags> class CompositeTag {
         typedef range::tuple <Tags ...> TagTuple;
-        TagTuple tags;
+        TagTuple tags_;
 
         /**
         Closure that converts composite labels by applying \a ConvertComponent
         to each component.
         */
         template <class ConvertComponent> class ConvertLabel {
-            TagTuple const & tags;
+            TagTuple const & tags_;
 
         public:
-            explicit ConvertLabel (TagTuple const & tags) : tags (tags) {}
+            explicit ConvertLabel (TagTuple const & tags) : tags_ (tags) {}
 
             // Convert math::product.
             template <class ... Components, class Inverses>
@@ -392,7 +392,7 @@ namespace label {
                 // component.
                 range::transform (
                     range::curry::call_unpack (ConvertComponent()),
-                    range::zip (tags, p.components()))));
+                    range::zip (tags_, p.components()))));
 
             // Convert math::lexicographical.
             template <class ... Components>
@@ -401,24 +401,29 @@ namespace label {
             RETURNS (math::make_lexicographical_over (
                 range::transform (
                     range::curry::call_unpack (ConvertComponent()),
-                    range::zip (tags, l.components()))));
+                    range::zip (tags_, l.components()))));
         };
 
         typedef ConvertLabel <callable::Compress> Compress;
         typedef ConvertLabel <callable::Expand> Expand;
 
     public:
-        CompositeTag() : tags() {}
+        CompositeTag() : tags_() {}
 
         template <class ... TagArguments>
             CompositeTag (TagArguments && ... tagArguments)
-        : tags (std::forward <TagArguments> (tagArguments) ...) {}
+        : tags_ (std::forward <TagArguments> (tagArguments) ...) {}
 
-        Compress compress() const { return Compress (tags); }
-        Expand expand() const { return Expand (tags); }
+        Compress compress() const { return Compress (tags_); }
+        Expand expand() const { return Expand (tags_); }
+
+        /** \brief
+        Return a tuple with the contained tags.
+        */
+        TagTuple const & tags() const { return tags_; }
 
         bool operator== (CompositeTag const & that) const
-        { return range::equal (this->tags, that.tags); }
+        { return range::equal (this->tags_, that.tags_); }
     };
 
 } // namespace label

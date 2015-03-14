@@ -105,6 +105,12 @@ BOOST_AUTO_TEST_CASE (testLabelProduct) {
 
         Tag tag = Tag (NoTag(), AlphabetTag <char> (alphabet));
 
+        BOOST_CHECK (first (tag.tags()) == NoTag());
+        BOOST_CHECK (second (tag.tags()).alphabet() == alphabet);
+
+        BOOST_CHECK (first (tag.tags()) == NoTag());
+        BOOST_CHECK (second (tag.tags()).alphabet() == alphabet);
+
         product p (1.5f, math::sequence <char> (std::string ("aba")));
 
         auto internal = compress (tag, p);
