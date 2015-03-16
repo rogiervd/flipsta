@@ -32,8 +32,6 @@ it should be fine.
 #define BOOST_TEST_MODULE test_flipsta_automaton_state_order
 #include "utility/test/boost_unit_test.hpp"
 
-#include "flipsta/core/hash_helper.hpp"
-
 #include "flipsta/automaton.hpp"
 
 #include <memory>
@@ -48,6 +46,8 @@ it should be fine.
 #include "range/zip.hpp"
 
 #include "math/arithmetic_magma.hpp"
+
+#include "flipsta/core/hash_helper.hpp"
 
 BOOST_AUTO_TEST_SUITE(test_suite_flipsta_automaton_state_order)
 
