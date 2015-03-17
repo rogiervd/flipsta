@@ -48,6 +48,13 @@ namespace draw_detail {
         return result;
     }
 
+    template <class First, class Second>
+        inline std::string makePrintable (std::pair <First, Second> const & p)
+    {
+        return "(" + makePrintable (p.first) + ", "
+            + makePrintable (p.second) + ")";
+    }
+
 } // namespace draw_detail
 /// \endcond
 
