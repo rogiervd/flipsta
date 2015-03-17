@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FLIPSTA_DRAW_HPP_INCLUDED
 #define FLIPSTA_DRAW_HPP_INCLUDED
 
-#include <ostream>
+#include <iosfwd>
 #include <sstream>
 #include <string>
 
