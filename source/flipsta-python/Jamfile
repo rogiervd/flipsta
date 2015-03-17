@@ -4,6 +4,8 @@ project flipsta-python
     : requirements
       <library>/boost//python
       <library>/flipsta//flipsta
+    : default-build
+      <c++-template-depth>1024
     ;
 
 python-extension flipsta :

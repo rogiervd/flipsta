@@ -16,6 +16,7 @@ lib flipsta
         <include>include
         <link>shared
     :   # Default build
+        <c++-template-depth>1024
     :   # Usage requirements
         <include>include
         <cxxflags>"-std=c++0x"
