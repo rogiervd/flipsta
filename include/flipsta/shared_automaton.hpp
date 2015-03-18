@@ -682,9 +682,9 @@ namespace detail {
                     Weight finalWeight = source->finalWeight();
                     if (finalWeight != math::zero <Weight>()) {
                         // This is a final state.
-                        stream << source;
+                        stream << sourceIndex;
                         if (finalWeight != math::one <Weight>())
-                            stream << ' ' << finalWeight << '\n';
+                            stream << ' ' << finalWeight;
                         stream << '\n';
                     }
 

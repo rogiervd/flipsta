@@ -281,4 +281,32 @@ BOOST_AUTO_TEST_CASE (test_flipsta_SharedAutomaton) {
     }
 }
 
+BOOST_AUTO_TEST_CASE (test_writeAttAutomaton) {
+    Memo memo;
+    {
+        auto automata = exampleAutomata (memo);
+        auto a1 = automata [automata.size() - 2];
+        auto a2 = automata [automata.size() - 1];
+
+        auto result = flipsta::union_ (a1, a2);
+
+        std::stringstream stream;
+        flipsta::writeAttAutomaton (stream, result);
+
+        BOOST_CHECK_EQUAL (stream.str(),
+            "0\n"
+            "0 1 b b 0.25\n"
+            "0 1 c c 1\n"
+            "1 2 d d 0.125\n"
+            "1 3 e e\n"
+            "1 4 f f 8\n"
+            "4 5 a a\n"
+            "5\n"
+            "3 5 z z\n"
+            "2 5\n"
+            "2 5 b b\n"
+            "2 4 c c 1\n");
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()
