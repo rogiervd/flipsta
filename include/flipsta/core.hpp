@@ -268,7 +268,7 @@ namespace operation {
     label using Tag.
 
     If different behaviour is required, specialise this or implement a
-    <c>.terminalLabel (State)</c> member function, to return the compressed
+    <c>.terminalLabel (State, Direction)</c> member function, to return the
     terminal label for a state.
 
     If the state is not a terminal label, <c>math::zero <Label>()</c> should be
@@ -295,7 +295,8 @@ namespace operation {
     \brief Specialise this member function, to return the compressed terminal
     label for a state.
 
-    It is also possible to provide a <c>.terminalLabelCompressed (State)</c>
+    It is also possible to provide a
+    <c>.terminalLabelCompressed (State, Direction)</c> member function.
 
     If the state is not a terminal label, <c>math::zero <CompressedLabel>()</c>
     should be returned.
