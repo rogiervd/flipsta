@@ -44,6 +44,9 @@ flipsta::Automaton <char, math::cost <float>> acyclicExample() {
     automaton.addState ('e');
     automaton.addState ('f');
 
+    automaton.setTerminalLabel (forward, 'd', math::one <Cost>());
+    automaton.setTerminalLabel (backward, 'e', Cost (1));
+
     char r = 'd';
     char s = 'c';
     char t = 'a';
@@ -89,6 +92,10 @@ flipsta::Automaton <char,
     automaton.addState ('e');
     automaton.addState ('f');
 
+    automaton.setTerminalLabel (forward, 'd', math::one <Lexicographical>());
+    automaton.setTerminalLabel (backward, 'e',
+        math::make_lexicographical (Cost (1), math::one <Sequence>()));
+
     char r = 'd';
     char s = 'c';
     char t = 'a';
@@ -125,6 +132,9 @@ template <class Sequence> flipsta::Automaton <int, Sequence> affixExample() {
     automaton.addState (7);
     automaton.addState (8);
     automaton.addState (10);
+
+    automaton.setTerminalLabel (forward, 1, math::one <Sequence>());
+    automaton.setTerminalLabel (backward, 10, math::one <Sequence>());
 
     automaton.addArc (1, 2, Sequence ('a'));
     automaton.addArc (2, 3, Sequence ('b'));
