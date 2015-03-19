@@ -43,9 +43,15 @@ struct OtherArc {
 
 BOOST_AUTO_TEST_CASE (test_flipstaExplicitArc) {
     {
-        ExplicitArc <int, double> a (4, 5, 7.5);
+        ExplicitArc <int, double> a (forward, 4, 5, 7.5);
         BOOST_CHECK_EQUAL (a.state (backward), 4);
         BOOST_CHECK_EQUAL (a.state (forward), 5);
+        BOOST_CHECK_EQUAL (a.label(), 7.5);
+    }
+    {
+        ExplicitArc <int, double> a (backward, 4, 5, 7.5);
+        BOOST_CHECK_EQUAL (a.state (forward), 4);
+        BOOST_CHECK_EQUAL (a.state (backward), 5);
         BOOST_CHECK_EQUAL (a.label(), 7.5);
     }
     {

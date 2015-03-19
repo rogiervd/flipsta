@@ -250,7 +250,7 @@ public:
         if (!this->hasState (destination))
             throw StateNotFound() << errorInfoState <State> (destination);
         arcs_.insert (
-            Arc (source, destination, label::compress (tag_, label)));
+            Arc (forward, source, destination, label::compress (tag_, label)));
     }
 
     /**

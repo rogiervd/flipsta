@@ -50,9 +50,36 @@ private:
 public:
     /** \brief
     Construct with the data explicitly.
+
+    \param direction
+        Indicate that the second argument is the source and the third the
+        destination.
+    \param source
+        The source state.
+    \param destination
+        The destination state.
+    \param label
+        The label on the arc.
     */
-    ExplicitArc (State const & source, State const & destination,
-        Label const & label)
+    ExplicitArc (Forward const & direction,
+        State const & source, State const & destination, Label const & label)
+    : source_ (source), destination_ (destination), label_ (label) {}
+
+    /** \brief
+    Construct with the data explicitly.
+
+    \param direction
+        Indicate that the second argument is the destination and the third the
+        source.
+    \param destination
+        The destination state.
+    \param source
+        The source state.
+    \param label
+        The label on the arc.
+    */
+    ExplicitArc (Backward const & direction,
+        State const & destination, State const & source, Label const & label)
     : source_ (source), destination_ (destination), label_ (label) {}
 
     /** \brief
