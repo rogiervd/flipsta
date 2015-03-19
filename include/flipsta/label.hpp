@@ -242,9 +242,19 @@ namespace label {
     */
     static auto const expand = callable::Expand();
 
-    template <class Tag, class Label> struct CompressedLabelType
+    /** \brief
+    Find the compressed label type that \a Tag converts \a ExpandedLabel to.
+    */
+    template <class Tag, class ExpandedLabel> struct CompressedLabelType
     : std::decay <typename std::result_of <
-        callable::Compress (Tag, Label)>::type> {};
+        callable::Compress (Tag, ExpandedLabel)>::type> {};
+
+    /** \brief
+    Find the expanded label type that \a Tag converts \a CompressedLabel to.
+    */
+    template <class Tag, class CompressedLabel> struct ExpandedLabelType
+    : std::decay <typename std::result_of <
+        callable::Expand (Tag, CompressedLabel)>::type> {};
 
     class NoTag {
         struct Identity {

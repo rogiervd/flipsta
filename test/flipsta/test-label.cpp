@@ -43,14 +43,17 @@ BOOST_AUTO_TEST_SUITE(flipsta_label_test_suite)
 // In the simple case, the label does not change, and the tag returns the same
 // value.
 BOOST_AUTO_TEST_CASE (testLabelSimple) {
-    typedef math::cost <float> cost;
-    cost c (4.5f);
+    typedef math::cost <float> Cost;
+    Cost c (4.5f);
 
-    typedef DefaultTagFor <cost>::type Tag;
+    typedef DefaultTagFor <Cost>::type Tag;
     Tag tag;
-    CompressedLabelType <Tag, cost>::type internal = compress (tag, c);
+    CompressedLabelType <Tag, Cost>::type internal = compress (tag, c);
 
-    static_assert (std::is_same <decltype (internal), cost>::value, "");
+    static_assert (std::is_same <decltype (internal), Cost>::value, "");
+    static_assert (std::is_same <
+        ExpandedLabelType <Tag, Cost>::type, Cost>::value, "");
+
     BOOST_CHECK_EQUAL (c.value(), internal.value());
 
     math::cost <float> external = expand (tag, internal);
@@ -89,6 +92,10 @@ template <class Tag> void checkSequenceLabels (Tag & tag, int a, int b, int c) {
     static_assert (std::is_same <
         CompressedSequence, math::sequence <CompressedSymbol>
         >::value, "");
+
+    typedef typename ExpandedLabelType <Tag, CompressedSequence>::type
+        SequenceAgain;
+    static_assert (std::is_same <SequenceAgain, Sequence>::value, "");
 
     // Empty.
     {
