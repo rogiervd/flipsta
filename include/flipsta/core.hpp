@@ -148,9 +148,9 @@ template <class Automaton> struct IsAutomaton
 namespace operation {
 
     /**
-    \brief Specialise this to return the tag used by the automaton.
+    \brief Specialise this to return the descriptor used by the automaton.
 
-    Alternatively, provide a \c .tag() member function.
+    Alternatively, provide a \c .descriptor() member function.
 
     This powers the automatic conversion between expanded and compressed
     representations of labels.
@@ -160,7 +160,7 @@ namespace operation {
         The automaton type, reference-qualified and possibly const-qualified.
     */
     template <class AutomatonTag, class Automaton, class Enable = void>
-        struct Tag
+        struct Descriptor
     /*{
         ... operator() (Automaton const &) const ...
     }*/;
@@ -209,7 +209,7 @@ namespace operation {
     This does not normally need to be implemented explicitly if
     \c TerminalStatesCompressed is implemented.
     The standard implementation uses \c TerminalStatesCompressed and converts
-    the labels on the fly using \c tag().
+    the labels on the fly using \c descriptor().
     If this is not the desired behaviour, either specialise this or implement a
     <c>.terminalStates(Direction)</c> member function.
 
@@ -265,7 +265,7 @@ namespace operation {
 
     There is normally no need to implement this explicitly, because the default
     implementation automatically uses TerminalLabelCompressed and converts the
-    label using Tag.
+    label using Descriptor.
 
     If different behaviour is required, specialise this or implement a
     <c>.terminalLabel (State, Direction)</c> member function, to return the
@@ -414,9 +414,9 @@ namespace operation {
 
 namespace callable {
 
-    struct Tag {
+    struct Descriptor {
         template <class Automaton> struct apply
-        : operation::Tag <typename AutomatonTag <Automaton>::type,
+        : operation::Descriptor <typename AutomatonTag <Automaton>::type,
             Automaton &&> {};
 
         template <class Automaton>
@@ -571,17 +571,17 @@ template <class Automaton> struct LabelType <Automaton,
 /// \endcond
 
 /**
-\brief Compute the general type of tag that the automaton uses.
+\brief Compute the general type of descriptor that the automaton uses.
 
 If \a Automaton is not an automaton, then this does not contain any type, so
 that SFINAE is possible.
 */
-template <class Automaton, class Enable = void> struct TagType {};
+template <class Automaton, class Enable = void> struct DescriptorType {};
 
 /// \cond DONT_DOCUMENT
-template <class Automaton> struct TagType <Automaton,
+template <class Automaton> struct DescriptorType <Automaton,
     typename boost::enable_if <IsAutomaton <Automaton>>::type>
-{ typedef typename std::decay <Automaton>::type::Tag type; };
+{ typedef typename std::decay <Automaton>::type::Descriptor type; };
 /// \endcond
 
 /**
@@ -595,17 +595,17 @@ template <class Automaton, class Enable = void> struct CompressedLabelType {};
 /// \cond DONT_DOCUMENT
 template <class Automaton> struct CompressedLabelType <Automaton,
     typename boost::enable_if <IsAutomaton <Automaton>>::type>
-: label::CompressedLabelType <typename TagType <Automaton>::type,
+: label::CompressedLabelType <typename DescriptorType <Automaton>::type,
     typename LabelType <Automaton>::type> {};
 /// \endcond
 
 /**
-\brief Return the tag that the automaton uses to convert between expanded and
-compressed representations of labels.
+\brief Return the descriptor that the automaton uses to convert between expanded
+and compressed representations of labels.
 
 \param automaton The automaton.
 */
-static auto constexpr tag = callable::Tag();
+static auto constexpr descriptor = callable::Descriptor();
 
 /**
 \brief Return A range of states in the automaton.
@@ -898,17 +898,17 @@ namespace operation {
     /* Forwarding to member functions. */
 
     // States.
-    // Call .tag() if it is available.
-    template <class Automaton, class Enable = void> struct TagMember
+    // Call .descriptor() if it is available.
+    template <class Automaton, class Enable = void> struct DescriptorMember
     : operation::Unimplemented {};
 
     template <class Automaton>
-        struct TagMember <Automaton, typename
+        struct DescriptorMember <Automaton, typename
             EnableIfMember <Automaton,
-                decltype (std::declval <Automaton>().tag())>::type>
+                decltype (std::declval <Automaton>().descriptor())>::type>
     {
         auto operator() (Automaton && automaton) const
-        RETURNS (std::forward <Automaton> (automaton).tag());
+        RETURNS (std::forward <Automaton> (automaton).descriptor());
     };
 
     // States.
@@ -1052,10 +1052,10 @@ namespace operation {
             .arcsOnCompressed (direction, std::forward <State> (state)));
     };
 
-    /* Tag. */
+    /* Descriptor. */
     template <class AutomatonTag, class Automaton, class Enable /*= void*/>
-        struct Tag
-    : TryAll <TagMember <Automaton>> {};
+        struct Descriptor
+    : TryAll <DescriptorMember <Automaton>> {};
 
     /* States. */
     template <class AutomatonTag, class Automaton, class Enable /*= void*/>
@@ -1082,13 +1082,13 @@ namespace operation {
     template <class Automaton, class Direction>
         struct TerminalStatesAutomatic <Automaton, Direction, typename
             boost::enable_if <boost::mpl::and_<
-                Has <callable::Tag (Automaton)>,
+                Has <callable::Descriptor (Automaton)>,
                 Has <callable::TerminalStatesCompressed (Automaton, Direction)>>
             >::type>
     {
         auto operator() (Automaton && automaton, Direction direction) const
         RETURNS (transformation::TransformLabelsForStates() (
-            ::flipsta::tag (automaton).expand(),
+            ::flipsta::descriptor (automaton).expand(),
             ::flipsta::terminalStatesCompressed (
                 std::forward <Automaton> (automaton), direction)));
     };
@@ -1120,14 +1120,14 @@ namespace operation {
     template <class Automaton, class Direction, class State>
         struct TerminalLabelAutomatic <Automaton, Direction, State, typename
             boost::enable_if <boost::mpl::and_<
-                Has <callable::Tag (Automaton)>,
+                Has <callable::Descriptor (Automaton)>,
                 Has <callable::TerminalLabelCompressed (
                     Automaton, Direction, State)>>
             >::type>
     {
         auto operator() (
             Automaton && automaton, Direction direction, State && state) const
-        RETURNS (::flipsta::tag (automaton).expand() (
+        RETURNS (::flipsta::descriptor (automaton).expand() (
             ::flipsta::terminalLabelCompressed (
                 std::forward <Automaton> (automaton), direction,
                 std::forward <State> (state))));
@@ -1161,14 +1161,14 @@ namespace operation {
     template <class Automaton, class Direction, class State>
         struct ArcsOnAutomatic <Automaton, Direction, State, typename
             boost::enable_if <boost::mpl::and_<
-                Has <callable::Tag (Automaton)>,
+                Has <callable::Descriptor (Automaton)>,
                 Has <callable::ArcsOnCompressed (Automaton, Direction, State)>>
             >::type>
     {
         auto operator() (Automaton && automaton,
             Direction direction, State && state) const
         RETURNS (transformation::TransformLabelsOnArcs() (
-            ::flipsta::tag (automaton).expand(),
+            ::flipsta::descriptor (automaton).expand(),
             ::flipsta::arcsOnCompressed (
                 std::forward <Automaton> (automaton),
                 direction, std::forward <State> (state))));

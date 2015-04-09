@@ -40,23 +40,24 @@ template <class ...> struct ShowTypes;
 
 BOOST_AUTO_TEST_SUITE(flipsta_label_test_suite)
 
-// In the simple case, the label does not change, and the tag returns the same
-// value.
+// In the simple case, the label does not change, and the descriptor returns
+// the same value.
 BOOST_AUTO_TEST_CASE (testLabelSimple) {
     typedef math::cost <float> Cost;
     Cost c (4.5f);
 
-    typedef DefaultTagFor <Cost>::type Tag;
-    Tag tag;
-    CompressedLabelType <Tag, Cost>::type internal = compress (tag, c);
+    typedef DefaultDescriptorFor <Cost>::type Descriptor;
+    Descriptor descriptor;
+    CompressedLabelType <Descriptor, Cost>::type internal
+        = compress (descriptor, c);
 
     static_assert (std::is_same <decltype (internal), Cost>::value, "");
     static_assert (std::is_same <
-        ExpandedLabelType <Tag, Cost>::type, Cost>::value, "");
+        ExpandedLabelType <Descriptor, Cost>::type, Cost>::value, "");
 
     BOOST_CHECK_EQUAL (c.value(), internal.value());
 
-    math::cost <float> external = expand (tag, internal);
+    math::cost <float> external = expand (descriptor, internal);
     BOOST_CHECK_EQUAL (external.value(), c.value());
 }
 
@@ -66,7 +67,9 @@ Test the conversion in both ways.
 The arguments a, b, and c give the internal representations of 'a', 'b', and
 'c'.
 */
-template <class Tag> void checkSequenceLabels (Tag & tag, int a, int b, int c) {
+template <class Descriptor>
+    void checkSequenceLabels (Descriptor & descriptor, int a, int b, int c)
+{
     typedef math::sequence <char> Sequence;
     typedef math::empty_sequence <char> EmptySequence;
     typedef math::single_sequence <char> SingleSequence;
@@ -74,84 +77,85 @@ template <class Tag> void checkSequenceLabels (Tag & tag, int a, int b, int c) {
     typedef math::sequence_annihilator <char> SequenceAnnihilator;
 
     static_assert (std::is_same <
-        DefaultTagFor <Sequence>::type, Tag>::value, "");
+        DefaultDescriptorFor <Sequence>::type, Descriptor>::value, "");
     static_assert (std::is_same <
-        DefaultTagFor <EmptySequence>::type, Tag>::value, "");
+        DefaultDescriptorFor <EmptySequence>::type, Descriptor>::value, "");
     static_assert (std::is_same <
-        DefaultTagFor <SingleSequence>::type, Tag>::value, "");
+        DefaultDescriptorFor <SingleSequence>::type, Descriptor>::value, "");
     static_assert (std::is_same <
-        DefaultTagFor <OptionalSequence>::type, Tag>::value, "");
+        DefaultDescriptorFor <OptionalSequence>::type, Descriptor>::value, "");
     static_assert (std::is_same <
-        DefaultTagFor <SequenceAnnihilator>::type, Tag>::value, "");
+        DefaultDescriptorFor <SequenceAnnihilator>::type, Descriptor>::value,
+        "");
 
-    typedef typename CompressedLabelType <Tag, Sequence>::type
+    typedef typename CompressedLabelType <Descriptor, Sequence>::type
         CompressedSequence;
 
-    typedef typename Tag::Alphabet::dense_symbol_type CompressedSymbol;
+    typedef typename Descriptor::Alphabet::dense_symbol_type CompressedSymbol;
 
     static_assert (std::is_same <
         CompressedSequence, math::sequence <CompressedSymbol>
         >::value, "");
 
-    typedef typename ExpandedLabelType <Tag, CompressedSequence>::type
+    typedef typename ExpandedLabelType <Descriptor, CompressedSequence>::type
         SequenceAgain;
     static_assert (std::is_same <SequenceAgain, Sequence>::value, "");
 
     // Empty.
     {
         EmptySequence emptySequence;
-        auto internalEmptySequence = compress (tag, emptySequence);
+        auto internalEmptySequence = compress (descriptor, emptySequence);
         BOOST_CHECK_EQUAL (size (internalEmptySequence.symbols()), 0);
     }
 
     // General sequence.
     {
         Sequence sequence (std::string ("ab"));
-        auto internal = compress (tag, sequence);
+        auto internal = compress (descriptor, sequence);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 2);
         BOOST_CHECK_EQUAL (first (internal.symbols()).id(), a);
         BOOST_CHECK_EQUAL (second (internal.symbols()).id(), b);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 2);
         BOOST_CHECK_EQUAL (first (external.symbols()), 'a');
         BOOST_CHECK_EQUAL (second (external.symbols()), 'b');
     }
     {
         Sequence empty;
-        auto internal = compress (tag, empty);
+        auto internal = compress (descriptor, empty);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 0);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 0);
     }
     {
         Sequence annihilator = SequenceAnnihilator();
-        auto internal = compress (tag, annihilator);
+        auto internal = compress (descriptor, annihilator);
         BOOST_CHECK (math::is_annihilator <math::callable::times> (internal));
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK (external.is_annihilator());
     }
 
     // Single.
     {
         SingleSequence b1 ('b');
-        auto internal = compress (tag, b1);
+        auto internal = compress (descriptor, b1);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 1);
         BOOST_CHECK_EQUAL (first (internal.symbols()).id(), b);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 1);
         BOOST_CHECK_EQUAL (first (external.symbols()), 'b');
     }
     {
         SingleSequence c1 ('c');
-        auto internal = compress (tag, c1);
+        auto internal = compress (descriptor, c1);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 1);
         BOOST_CHECK_EQUAL (first (internal.symbols()).id(), c);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 1);
         BOOST_CHECK_EQUAL (first (external.symbols()), 'c');
     }
@@ -159,29 +163,29 @@ template <class Tag> void checkSequenceLabels (Tag & tag, int a, int b, int c) {
     // Optional.
     {
         OptionalSequence empty01;
-        auto internal = compress (tag, empty01);
+        auto internal = compress (descriptor, empty01);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 0);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 0);
     }
     {
         OptionalSequence a01 ('a');
-        auto internal = compress (tag, a01);
+        auto internal = compress (descriptor, a01);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 1);
         BOOST_CHECK_EQUAL (first (internal.symbols()).id(), a);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 1);
         BOOST_CHECK_EQUAL (first (external.symbols()), 'a');
     }
     {
         OptionalSequence c01 ('c');
-        auto internal = compress (tag, c01);
+        auto internal = compress (descriptor, c01);
         BOOST_CHECK_EQUAL (size (internal.symbols()), 1);
         BOOST_CHECK_EQUAL (first (internal.symbols()).id(), c);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (size (external.symbols()), 1);
         BOOST_CHECK_EQUAL (first (external.symbols()), 'c');
     }
@@ -189,24 +193,24 @@ template <class Tag> void checkSequenceLabels (Tag & tag, int a, int b, int c) {
     // Annihilator.
     {
         SequenceAnnihilator annihilator;
-        auto internal = compress (tag, annihilator);
+        auto internal = compress (descriptor, annihilator);
         BOOST_CHECK (math::is_annihilator <math::callable::times> (internal));
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK (math::is_annihilator <math::callable::times> (
             external));
     }
 }
 
 BOOST_AUTO_TEST_CASE (testLabelSequence) {
-    typedef DefaultTagFor <math::sequence <char>>::type Tag;
-    // Default-construct tag.
+    typedef DefaultDescriptorFor <math::sequence <char>>::type Descriptor;
+    // Default-construct descriptor.
     {
-        Tag tag;
-        checkSequenceLabels (tag, 0, 1, 2);
+        Descriptor descriptor;
+        checkSequenceLabels (descriptor, 0, 1, 2);
 
-        Tag tag2;
-        BOOST_CHECK (!(tag == tag2));
+        Descriptor descriptor2;
+        BOOST_CHECK (!(descriptor == descriptor2));
     }
     // Pass in an alphabet explicitly.
     {
@@ -217,11 +221,11 @@ BOOST_AUTO_TEST_CASE (testLabelSequence) {
         alphabet->add_symbol ('c');
         alphabet->add_symbol ('a');
 
-        Tag tag (alphabet);
-        checkSequenceLabels (tag, 4, 1, 3);
+        Descriptor descriptor (alphabet);
+        checkSequenceLabels (descriptor, 4, 1, 3);
 
-        Tag tag2 (alphabet);
-        BOOST_CHECK (tag == tag2);
+        Descriptor descriptor2 (alphabet);
+        BOOST_CHECK (descriptor == descriptor2);
     }
 }
 BOOST_AUTO_TEST_SUITE_END()

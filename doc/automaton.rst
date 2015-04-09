@@ -27,7 +27,7 @@ Intrinsic operations
 The operations access an automaton immutably, i.e. without changing it.
 They usually require that the automaton remains in memory and remains unchanged.
 
-.. doxygenvariable:: flipsta::tag
+.. doxygenvariable:: flipsta::descriptor
 .. doxygenvariable:: flipsta::states
 .. doxygenvariable:: flipsta::hasState
 .. doxygenvariable:: flipsta::terminalStates
@@ -47,7 +47,7 @@ These compile-time helpers are defined:
 .. doxygenstruct:: flipsta::IsAutomaton
 .. doxygenstruct:: flipsta::StateType
 .. doxygenstruct:: flipsta::LabelType
-.. doxygenstruct:: flipsta::TagType
+.. doxygenstruct:: flipsta::DescriptorType
 .. doxygenstruct:: flipsta::CompressedLabelType
 
 A mutable automaton: ``Automaton``

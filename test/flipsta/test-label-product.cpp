@@ -44,20 +44,21 @@ BOOST_AUTO_TEST_CASE (testLabelProduct) {
     // Product with only one type, and one that does not change, at that.
     {
         typedef math::product <math::over <math::cost <double>>> product;
-        typedef DefaultTagFor <product>::type Tag;
+        typedef DefaultDescriptorFor <product>::type Descriptor;
 
-        static_assert (std::is_same <Tag,
-                CompositeTag <DefaultTagFor <math::cost <double>>::type>
+        static_assert (std::is_same <Descriptor,
+                CompositeDescriptor <
+                    DefaultDescriptorFor <math::cost <double>>::type>
             >::value, "");
 
         product p (6.25f);
-        Tag tag;
+        Descriptor descriptor;
 
-        auto internal = compress (tag, p);
+        auto internal = compress (descriptor, p);
         static_assert (std::is_same <decltype (internal), product>::value, "");
         BOOST_CHECK_EQUAL (first (internal.components()).value(), 6.25f);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         static_assert (std::is_same <decltype (external), product>::value, "");
         BOOST_CHECK_EQUAL (first (external.components()).value(), 6.25f);
     }
@@ -65,25 +66,25 @@ BOOST_AUTO_TEST_CASE (testLabelProduct) {
     {
         typedef math::product <math::over <float, math::sequence <char>>>
             product;
-        typedef DefaultTagFor <product>::type Tag;
+        typedef DefaultDescriptorFor <product>::type Descriptor;
 
-        static_assert (std::is_same <Tag,
-            CompositeTag <
-                DefaultTagFor <float>::type,
-                DefaultTagFor <math::sequence <char>>::type
+        static_assert (std::is_same <Descriptor,
+            CompositeDescriptor <
+                DefaultDescriptorFor <float>::type,
+                DefaultDescriptorFor <math::sequence <char>>::type
             >>::value, "");
 
         product p (1.5f, math::sequence <char> (std::string ("aba")));
-        Tag tag;
+        Descriptor descriptor;
 
-        auto internal = compress (tag, p);
+        auto internal = compress (descriptor, p);
         BOOST_CHECK_EQUAL (first (internal.components()), 1.5f);
         auto internalSequence = second (internal.components());
         BOOST_CHECK_EQUAL (first (internalSequence.symbols()).id(), 0);
         BOOST_CHECK_EQUAL (second (internalSequence.symbols()).id(), 1);
         BOOST_CHECK_EQUAL (third (internalSequence.symbols()).id(), 0);
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (first (external.components()), 1.5f);
         auto externalSequence = second (external.components());
         BOOST_CHECK_EQUAL (first (externalSequence.symbols()), 'a');
@@ -94,7 +95,7 @@ BOOST_AUTO_TEST_CASE (testLabelProduct) {
     {
         typedef math::product <math::over <float, math::sequence <char>>>
             product;
-        typedef DefaultTagFor <product>::type Tag;
+        typedef DefaultDescriptorFor <product>::type Descriptor;
 
         auto alphabet = std::make_shared <math::alphabet <char>>();
         alphabet->add_symbol ('q');
@@ -103,24 +104,25 @@ BOOST_AUTO_TEST_CASE (testLabelProduct) {
         alphabet->add_symbol ('c');
         auto a = alphabet->add_symbol ('a');
 
-        Tag tag = Tag (NoTag(), AlphabetTag <char> (alphabet));
+        Descriptor descriptor = Descriptor (
+            NoDescriptor(), AlphabetDescriptor <char> (alphabet));
 
-        BOOST_CHECK (first (tag.tags()) == NoTag());
-        BOOST_CHECK (second (tag.tags()).alphabet() == alphabet);
+        BOOST_CHECK (first (descriptor.components()) == NoDescriptor());
+        BOOST_CHECK (second (descriptor.components()).alphabet() == alphabet);
 
-        BOOST_CHECK (first (tag.tags()) == NoTag());
-        BOOST_CHECK (second (tag.tags()).alphabet() == alphabet);
+        BOOST_CHECK (first (descriptor.components()) == NoDescriptor());
+        BOOST_CHECK (second (descriptor.components()).alphabet() == alphabet);
 
         product p (1.5f, math::sequence <char> (std::string ("aba")));
 
-        auto internal = compress (tag, p);
+        auto internal = compress (descriptor, p);
         BOOST_CHECK_EQUAL (first (internal.components()), 1.5f);
         auto internalSequence = second (internal.components());
         BOOST_CHECK_EQUAL (first (internalSequence.symbols()).id(), a.id());
         BOOST_CHECK_EQUAL (second (internalSequence.symbols()).id(), b.id());
         BOOST_CHECK_EQUAL (third (internalSequence.symbols()).id(), a.id());
 
-        auto external = expand (tag, internal);
+        auto external = expand (descriptor, internal);
         BOOST_CHECK_EQUAL (first (external.components()), 1.5f);
         auto externalSequence = second (external.components());
         BOOST_CHECK_EQUAL (first (externalSequence.symbols()), 'a');

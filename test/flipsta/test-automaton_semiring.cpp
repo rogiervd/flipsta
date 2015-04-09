@@ -33,12 +33,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 typedef math::cost <float> Cost;
 
 typedef flipsta::AutomatonSemiring <char, Cost> AutomatonSemiring;
-typedef flipsta::label::DefaultTagFor <AutomatonSemiring>::type LabelTag;
+typedef flipsta::label::DefaultDescriptorFor <AutomatonSemiring>::type Descriptor;
 
 BOOST_AUTO_TEST_SUITE(test_automaton_semiring)
 
 BOOST_AUTO_TEST_CASE (spot) {
-    LabelTag labelTag;
+    Descriptor descriptor;
 
     {
         AutomatonSemiring zero;
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE (spot) {
 
         auto finalState = six.automaton().state();
 
-        AutomatonSemiring threeA (labelTag, Cost (3), 'a');
+        AutomatonSemiring threeA (descriptor, Cost (3), 'a');
         BOOST_CHECK (!threeA.automaton().isNull());
         BOOST_CHECK_EQUAL (threeA.automaton().startWeight().value(), 3);
         BOOST_CHECK_EQUAL (threeA.automaton().state()->arcs().size(), 1);
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE (spot) {
             alsoNineA.automaton().state()->arcs().begin()->second.state()
             == finalState);
 
-        AutomatonSemiring fiveB (labelTag, Cost (5), 'b');
+        AutomatonSemiring fiveB (descriptor, Cost (5), 'b');
         BOOST_CHECK (!fiveB.automaton().isNull());
         BOOST_CHECK_EQUAL (fiveB.automaton().startWeight().value(), 5);
         BOOST_CHECK_EQUAL (fiveB.automaton().state()->arcs().size(), 1);
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE (spot) {
 }
 
 BOOST_AUTO_TEST_CASE (all) {
-    LabelTag labelTag;
+    Descriptor descriptor;
     {
         std::vector <AutomatonSemiring> examples;
 
@@ -139,10 +139,10 @@ BOOST_AUTO_TEST_CASE (all) {
         examples.push_back (AutomatonSemiring (math::one <Cost>()));
         examples.push_back (AutomatonSemiring (Cost (5)));
 
-        AutomatonSemiring s1 (labelTag, Cost (0), 'a');
-        AutomatonSemiring s2 (labelTag, Cost (2), 'b');
-        AutomatonSemiring s3 (labelTag, Cost (7), 'c');
-        AutomatonSemiring s4 (labelTag, Cost (2), 'a');
+        AutomatonSemiring s1 (descriptor, Cost (0), 'a');
+        AutomatonSemiring s2 (descriptor, Cost (2), 'b');
+        AutomatonSemiring s3 (descriptor, Cost (7), 'c');
+        AutomatonSemiring s4 (descriptor, Cost (2), 'a');
 
         examples.push_back (s1);
         examples.push_back (s2);

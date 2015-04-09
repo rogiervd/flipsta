@@ -77,16 +77,16 @@ Some examples of semirings are:
 The composite labels :cpp:class:`math::product` and :cpp:class:`math::lexicographical` can be used with any number of components, and even recursively.
 This makes this library quite a bit more flexible than its competitors, and opens up many new possibilities.
 
-Tags
-====
+Descriptors
+===========
 
 For efficiency, it is often useful to represent labels differently internally than externally.
 For example, sequences of symbols are represented internally by dense symbols, and an :cpp:class:`math::alphabet` keeps track of the mapping.
-Conversion to compressed labels and back to expanded labels is done by the *tag*.
-An automaton holds contains one tag for all the labels on its arcs.
-For composite labels, composite tags are used, which forward to tags specific to the components.
+Conversion to compressed labels and back to expanded labels is done by the *descriptor*.
+An automaton holds contains one descriptor for all the labels on its arcs.
+For composite labels, composite descriptors are used, which forward to descriptors specific to the components.
 
-.. doxygenstruct:: flipsta::label::DefaultTagFor
+.. doxygenstruct:: flipsta::label::DefaultDescriptorFor
 
 .. doxygenstruct:: flipsta::label::CompressedLabelType
 
@@ -95,23 +95,23 @@ For composite labels, composite tags are used, which forward to tags specific to
 
 .. doxygenvariable:: flipsta::label::expand
 
-Tag types
----------
+Descriptor types
+----------------
 
-Tag object define ``compress()`` and ``expand()`` methods that return a function object that converts between external and internal representations.
+Descriptor object define ``compress()`` and ``expand()`` methods that return a function object that converts between external and internal representations.
 They can often be default-constructed, but it is sometimes possible to pass in parameters.
-For example, :cpp:class:`flipsta::label::AlphabetTag` produces its own alphabet if it is default-constructed.
-Alternatively, a std::shared_ptr to an alphabet can be passed in; this alphabet can be shared with other tags.
+For example, :cpp:class:`flipsta::label::AlphabetDescriptor` produces its own alphabet if it is default-constructed.
+Alternatively, a std::shared_ptr to an alphabet can be passed in; this alphabet can be shared with other descriptors.
 
-The following tag types are predefined:
+The following descriptor types are predefined:
 
-.. doxygenclass:: flipsta::label::NoTag
+.. doxygenclass:: flipsta::label::NoDescriptor
     :members:
 
-.. doxygenclass:: flipsta::label::AlphabetTag
+.. doxygenclass:: flipsta::label::AlphabetDescriptor
     :members:
 
-.. doxygenclass:: flipsta::label::CompositeTag
+.. doxygenclass:: flipsta::label::CompositeDescriptor
     :members:
 
 
@@ -125,7 +125,7 @@ The type of label of states that do have a terminal label is often restricted.
 For example, symbol sequences in terminal labels should usually be empty.
 The default type (but not necessarily value) for terminal labels is therefore the type of semiring zero of the label type.
 For symbol sequences, this type is :cpp:class:`math::empty_sequence`.
-These labels can be converted using the tag, like the labels on the transitions.
+These labels can be converted using the descriptor, like the labels on the transitions.
 
 Compile-time helpers
 ====================

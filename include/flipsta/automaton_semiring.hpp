@@ -168,7 +168,7 @@ namespace label {
 
     // Sequences.
     template <class Key, class Weight>
-        struct DefaultTagFor <AutomatonSemiring <Key, Weight>>
+        struct DefaultDescriptorFor <AutomatonSemiring <Key, Weight>>
     { typedef AutomatonSemiringTag <Key, Weight> type; };
 
 } // namespace label

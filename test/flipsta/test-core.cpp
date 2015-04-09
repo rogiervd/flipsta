@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE (test_direction) {
 }
 
 BOOST_AUTO_TEST_CASE (test_operations) {
-    static_assert (!Has <callable::Tag (NotAnAutomaton)>::value, "");
+    static_assert (!Has <callable::Descriptor (NotAnAutomaton)>::value, "");
 
     static_assert (!Has <callable::States (NotAnAutomaton)>::value, "");
 

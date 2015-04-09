@@ -61,7 +61,7 @@ void checkAutomaton (Automaton & automaton) {
         std::is_same <flipsta::StateType <Automaton>::type, State>::value, "");
 
     std::shared_ptr <math::alphabet <char>> alphabet
-        = flipsta::tag (automaton).alphabet();
+        = flipsta::descriptor (automaton).alphabet();
 
     automaton.addState (1);
     BOOST_CHECK (!hasState (automaton, 0));

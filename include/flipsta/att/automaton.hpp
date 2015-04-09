@@ -117,14 +117,14 @@ The symbol tables can be the same, if the input and output alphabets are the
 same.
 
 \todo The symbol mapping merely needs to indicate what the empty symbol is, and
-an alphabet needs to be passed to the automaton's label tag.
+an alphabet needs to be passed to the automaton's label descriptor.
 Allow for these two cases:
 \li The symbols in the file are strings, but the symbol table should be built as
     the symbols are encountered.
     This should be initialised with an empty symbol (\<eps>, typically).
 \li The symbols in the file are dense integers, and should be saved as such.
-    In that case, there should be no alphabet tag at all, and "0" should map to
-    the empty sequence.
+    In that case, there should be no alphabet descriptor at all, and "0" should
+    map to the empty sequence.
 
 \todo Maybe it should be possible to read automata while guaranteeing that no
 symbols are actually empty?
@@ -137,11 +137,11 @@ inline std::unique_ptr <detail::Automaton>
         SymbolTable const & outputSymbolTable)
 {
     typedef detail::Automaton Automaton;
-    typedef typename Automaton::Tag Tag;
+    typedef typename DescriptorType <Automaton>::type Descriptor;
 
     auto result = utility::make_unique <Automaton> (
-        Tag (inputSymbolTable.alphabet(), outputSymbolTable.alphabet(),
-            label::NoTag()));
+        Descriptor (inputSymbolTable.alphabet(), outputSymbolTable.alphabet(),
+            label::NoDescriptor()));
     detail::WrappedAutomaton <detail::Weight, Automaton> wrapper (*result);
     detail::readAutomaton (
         file_name, wrapper, inputSymbolTable, outputSymbolTable);

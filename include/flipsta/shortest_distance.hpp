@@ -66,7 +66,8 @@ namespace callable {
         template <class Automaton, class Direction>
             struct AcyclicShortestDistanceResult
         {
-            typedef decltype (tag (std::declval <Automaton>()).expand()) Expand;
+            typedef decltype (descriptor (std::declval <Automaton>()).expand())
+                Expand;
             typedef typename std::result_of <
                 transformation::TransformLabelsForStates (
                     Expand, ShortestDistanceAcyclicRange <Automaton, Direction>)
@@ -142,14 +143,14 @@ namespace callable {
                     "InitialStates must be a range of (state, label).");
 
                 // Make a compressed version of the initial states.
-                auto compress = flipsta::tag (automaton).compress();
+                auto compress = flipsta::descriptor (automaton).compress();
                 auto compressedInitialStates =
                     transformation::TransformLabelsForStates() (
                         compress, std::forward <InitialStates> (initialStates));
 
                 // Return the expanded version of the compressed states.
-                // Use the tag before moving the automaton.
-                auto expand = flipsta::tag (automaton).expand();
+                // Use the descriptor before moving the automaton.
+                auto expand = flipsta::descriptor (automaton).expand();
                 ShortestDistanceAcyclicCompressed <Automaton, Direction>
                     implementation;
                 return transformation::TransformLabelsForStates() (expand,
@@ -169,8 +170,8 @@ namespace callable {
                     Direction const & direction)
                 const
             {
-                // Use the tag before moving the automaton.
-                auto expand = flipsta::tag (automaton).expand();
+                // Use the descriptor before moving the automaton.
+                auto expand = flipsta::descriptor (automaton).expand();
                 ShortestDistanceAcyclicFromCompressed <Automaton, Direction>
                     implementation;
                 return transformation::TransformLabelsForStates() (expand,

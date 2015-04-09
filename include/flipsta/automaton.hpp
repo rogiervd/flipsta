@@ -101,17 +101,17 @@ public:
         typename math::magma_tag <TerminalLabel>::type>::value,
         "The Label and TerminalLabel types must be in the same semiring.");
 
-    typedef typename label::DefaultTagFor <Label>::type Tag;
+    typedef typename label::DefaultDescriptorFor <Label>::type Descriptor;
 
-    typedef typename label::CompressedLabelType <Tag, Label>::type
+    typedef typename label::CompressedLabelType <Descriptor, Label>::type
         CompressedLabel;
-    typedef typename label::CompressedLabelType <Tag, TerminalLabel>::type
-        CompressedTerminalLabel;
+    typedef typename label::CompressedLabelType <Descriptor, TerminalLabel
+        >::type CompressedTerminalLabel;
 
     typedef ExplicitArc <State, CompressedLabel> Arc;
 
 private:
-    Tag tag_;
+    Descriptor descriptor_;
 
     // States must be findable in O(1) time, but the order must be consistent.
     typedef boost::multi_index_container <
@@ -186,14 +186,14 @@ private:
 
     struct SetTerminalLabelImplementation {
         template <class TerminalLabel2> void operator() (
-            TerminalStates & terminalStates, Tag const & tag,
+            TerminalStates & terminalStates, Descriptor const & descriptor,
             State const & state, TerminalLabel2 const & label_) const
         {
             // Convert label to terminal label.
             // (For example, sequences may have to be empty.)
             TerminalLabel label (label_);
             std::pair <State, CompressedTerminalLabel> newEntry (
-                state, label::compress (tag, label));
+                state, label::compress (descriptor, label));
             auto result = terminalStates.push_back (newEntry);
             // Fails if the state already had a label.
             // sudo push_back.
@@ -204,22 +204,24 @@ private:
 
     struct UnsetTerminalLabelImplementation {
         template <class ZeroTerminalLabel> void operator() (
-            TerminalStates & terminalStates, Tag const &,
+            TerminalStates & terminalStates, Descriptor const &,
             State const & state, ZeroTerminalLabel const &) const
         { terminalStates.template get <1>().erase (state); }
     };
 
 public:
     /**
-    \brief Initialise with no states, no arcs, and a default-constructed tag.
+    \brief Initialise with no states, no arcs, and a default-constructed
+    descriptor.
     */
-    Automaton() : tag_() {}
+    Automaton() : descriptor_() {}
 
     /**
-    \brief Initialise with no states, no arcs, and the tag as given.
-    \param tag The value of the tag to use.
+    \brief Initialise with no states, no arcs, and the descriptor as given.
+    \param descriptor The value of the descriptor to use.
     */
-    explicit Automaton (Tag const & tag) : tag_ (tag) {}
+    explicit Automaton (Descriptor const & descriptor)
+    : descriptor_ (descriptor) {}
 
     /* Mutable methods. */
 
@@ -250,7 +252,8 @@ public:
         if (!this->hasState (destination))
             throw StateNotFound() << errorInfoState <State> (destination);
         arcs_.insert (
-            Arc (forward, source, destination, label::compress (tag_, label)));
+            Arc (forward, source, destination,
+                label::compress (descriptor_, label)));
     }
 
     /**
@@ -283,13 +286,13 @@ public:
         rime::call_if (label == math::zero <TerminalLabel>(),
             UnsetTerminalLabelImplementation(),
             SetTerminalLabelImplementation(),
-            terminalStatesContainer (direction), tag_, state, label);
+            terminalStatesContainer (direction), descriptor_, state, label);
     }
 
     /* Methods for immutable access. */
     /// \cond DONT_DOCUMENT
     // (These merely implement the general access functions.)
-    Tag const & tag() const { return tag_; }
+    Descriptor const & descriptor() const { return descriptor_; }
 
     auto states() const RETURNS (range::make_iterator_range (states_));
 

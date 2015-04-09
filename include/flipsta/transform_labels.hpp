@@ -49,11 +49,11 @@ Normally, objects of this class should be produced using \c transformLabels.
     alive rests with the caller.
 \tparam Function
     Type of the function that transforms the internal label type.
-\tparam Tag
-    The label tag of the wrapper.
+\tparam Descriptor
+    The label descriptor of the wrapper.
     This must be compatible with the label type that Function results in.
 */
-template <class Underlying, class Function, class Tag>
+template <class Underlying, class Function, class Descriptor>
     class TransformedLabelAutomaton;
 
 /** \brief
@@ -62,7 +62,7 @@ Return an automaton that transforms labels on the fly.
 This goes for both labels on the arcs and for terminal labels.
 The function gets passed the compressed label of the underlying automaton,
 and should return a compressed label for the resulting automaton.
-\a tag is used to convert this label to an expanded label when required.
+\a descriptor is used to convert this label to an expanded label when required.
 
 The transformation is allowed to keep the type of the labels the same, or to
 change it.
@@ -79,21 +79,21 @@ Its return type does always need to be in one semiring.
 \param function
     The function used to transform the original compressed labels to the new
     compressed labels.
-\param tag
-    The label tag to use for the automaton with transformed labels.
+\param descriptor
+    The label descriptor to use for the automaton with transformed labels.
     This must be compatible with the label type that \a function returns.
 
 \internal
 Since this works on the underlying representation, it is not possible to
-automatically determine the tag.
+automatically determine the descriptor.
 */
-template <class Underlying, class Function, class Tag> inline
-    TransformedLabelAutomaton <Underlying, Function, Tag>
+template <class Underlying, class Function, class Descriptor> inline
+    TransformedLabelAutomaton <Underlying, Function, Descriptor>
     transformLabels (Underlying && underlying,
-        Function const & function, Tag const & tag)
+        Function const & function, Descriptor const & descriptor)
 {
-    return TransformedLabelAutomaton <Underlying, Function, Tag> (
-        std::forward <Underlying> (underlying), function, tag);
+    return TransformedLabelAutomaton <Underlying, Function, Descriptor> (
+        std::forward <Underlying> (underlying), function, descriptor);
 }
 
 namespace transform_label_detail {
@@ -108,22 +108,25 @@ namespace transform_label_detail {
     \todo When expanded labels are required (e.g. in arcsOn), compressing and
     expanding is extra work, so specialise arcsOn for this case.
     */
-    template <class OldTag, class NewTag, class Function>
+    template <class OldDescriptor, class NewDescriptor, class Function>
         class ExpandAndCompress
     {
-        OldTag oldTag_;
-        NewTag newTag_;
+        OldDescriptor oldDescriptor_;
+        NewDescriptor newDescriptor_;
         Function function_;
 
     public:
         ExpandAndCompress (
-            OldTag const & oldTag, NewTag const & newTag,
+            OldDescriptor const & oldDescriptor,
+            NewDescriptor const & newDescriptor,
             Function const & function)
-        : oldTag_ (oldTag), newTag_ (newTag), function_ (function) {}
+        : oldDescriptor_ (oldDescriptor), newDescriptor_ (newDescriptor),
+            function_ (function) {}
 
         template <class OldCompressedLabel>
             auto operator() (OldCompressedLabel const & label) const
-        RETURNS (newTag_.compress() (function_ (oldTag_.expand() (label))));
+        RETURNS (newDescriptor_.compress() (
+            function_ (oldDescriptor_.expand() (label))));
     };
 
 } // namespace transform_label_detail
@@ -135,7 +138,7 @@ This goes for both labels on the arcs and for terminal labels.
 Unlike for \ref transformLabels, the function gets passed the expanded label of
 the underlying automaton, and should return an expanded label for the resulting
 automaton.
-\a tag is used to convert this label to a compressed label when required.
+\a descriptor is used to convert this label to a compressed label when required.
 
 The transformation is allowed to keep the type of the labels the same, or to
 change it.
@@ -150,33 +153,33 @@ Its return type does always need to be in one semiring.
 \param function
     The function used to transform the original expanded labels to the new
     expanded labels.
-\param tag
-    The label tag to use for the automaton with transformed labels.
+\param descriptor
+    The label descriptor to use for the automaton with transformed labels.
     This must be compatible with the label type that \a function returns.
 
-\todo It might be possible to automatically determine the default tag.
+\todo It might be possible to automatically determine the default descriptor.
 */
-template <class Underlying, class Function, class Tag,
+template <class Underlying, class Function, class Descriptor,
     class ExpandAndCompress = transform_label_detail::ExpandAndCompress <
-        typename TagType <Underlying>::type, Tag, Function>>
-    inline TransformedLabelAutomaton <Underlying, ExpandAndCompress, Tag>
+        typename DescriptorType <Underlying>::type, Descriptor, Function>>
+    inline TransformedLabelAutomaton <Underlying, ExpandAndCompress, Descriptor>
     transformExpandedLabels (Underlying && underlying,
-        Function const & function, Tag const & tag)
+        Function const & function, Descriptor const & descriptor)
 {
     return transformLabels (std::forward <Underlying> (underlying),
         transform_label_detail::ExpandAndCompress <
-            typename TagType <Underlying>::type, Tag, Function> (
-                underlying.tag(), tag, function), tag);
+            typename DescriptorType <Underlying>::type, Descriptor, Function> (
+                underlying.descriptor(), descriptor, function), descriptor);
 }
 
 struct TransformLabelsTag;
 
-template <class Underlying, class Function, class Tag>
+template <class Underlying, class Function, class Descriptor>
     struct AutomatonTagUnqualified <
-        TransformedLabelAutomaton <Underlying, Function, Tag>>
+        TransformedLabelAutomaton <Underlying, Function, Descriptor>>
 { typedef TransformLabelsTag type; };
 
-template <class Underlying, class Function, class Tag>
+template <class Underlying, class Function, class Descriptor>
     class TransformedLabelAutomaton
 {
 public:
@@ -188,16 +191,16 @@ public:
         CompressedUnderlyingLabel;
     typedef typename std::result_of <Function (CompressedUnderlyingLabel)>::type
         CompressedLabel;
-    typedef typename label::ExpandedLabelType <Tag, CompressedLabel>::type
-        Label;
+    typedef typename label::ExpandedLabelType <Descriptor, CompressedLabel
+        >::type Label;
 
     typedef typename DecayedUnderlying::CompressedTerminalLabel
         CompressedUnderlyingTerminalLabel;
     typedef typename std::result_of <
             Function (CompressedUnderlyingTerminalLabel)>::type
         CompressedTerminalLabel;
-    typedef typename label::ExpandedLabelType <Tag, CompressedTerminalLabel
-        >::type TerminalLabel;
+    typedef typename label::ExpandedLabelType <
+        Descriptor, CompressedTerminalLabel>::type TerminalLabel;
 
     static_assert (std::is_same <
         typename math::magma_tag <CompressedLabel>::type,
@@ -208,16 +211,17 @@ public:
 private:
     Underlying underlying_;
     Function function_;
-    Tag tag_;
+    Descriptor descriptor_;
 
 public:
     TransformedLabelAutomaton (Underlying && underlying,
-        Function const & function, Tag const & tag)
-    : underlying_ (underlying), function_ (function), tag_ (tag) {}
+        Function const & function, Descriptor const & descriptor)
+    : underlying_ (underlying), function_ (function), descriptor_ (descriptor)
+    {}
 
     Underlying const & underlying() const { return underlying_; }
 
-    Tag const & tag() const { return tag_; }
+    Descriptor const & descriptor() const { return descriptor_; }
 
     auto states() const RETURNS (flipsta::states (underlying_));
 

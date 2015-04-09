@@ -86,7 +86,8 @@ BOOST_AUTO_TEST_CASE (testProjectLabels) {
     typedef math::cost <float> Cost;
 
     auto transformed = flipsta::transformLabels (
-        example, Project <0>(), range::first (example.tag().tags()));
+        example, Project <0>(),
+        range::first (example.descriptor().components()));
 
     static_assert (std::is_same <
         flipsta::LabelType <decltype (transformed)>::type, Cost>::value, "");
@@ -127,7 +128,7 @@ BOOST_AUTO_TEST_CASE (testSquareCost) {
     typedef math::cost <float> Cost;
 
     auto transformed = flipsta::transformLabels (
-        example, Square(), example.tag());
+        example, Square(), example.descriptor());
 
     static_assert (std::is_same <
         flipsta::LabelType <decltype (transformed)>::type, Cost>::value, "");
@@ -170,7 +171,7 @@ BOOST_AUTO_TEST_CASE (testSquareSequence) {
     typedef math::sequence <char> Sequence;
 
     auto transformed = flipsta::transformLabels (
-        example, Square(), example.tag());
+        example, Square(), example.descriptor());
 
     typedef decltype (transformed) TransformedAutomaton;
 
@@ -232,7 +233,7 @@ BOOST_AUTO_TEST_CASE (testTransformExpandedLabels) {
     // BumpChar only takes sequence semirings with "char", so this tests
     // transformExpandedLabels properly.
     auto transformed = flipsta::transformExpandedLabels (
-        example, BumpChar(), example.tag());
+        example, BumpChar(), example.descriptor());
 
     typedef decltype (transformed) TransformedAutomaton;
 
