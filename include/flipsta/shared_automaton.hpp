@@ -412,10 +412,10 @@ namespace detail {
 
         The preconditions require that neither state is entirely vacuous.
 
-        \pre leftPreWeight != math::zero <Weight>().
-        \pre rightPreWeight != math::zero <Weight>().
-        \pre leftFinalWeight != math::zero <Weight>() || !leftArcs.empty().
-        \pre rightFinalWeight != math::zero <Weight>() || !rightArcs.empty().
+        \pre leftPreWeight != math::zero \<Weight>().
+        \pre rightPreWeight != math::zero \<Weight>().
+        \pre leftFinalWeight != math::zero \<Weight>() || !leftArcs.empty().
+        \pre rightFinalWeight != math::zero \<Weight>() || !rightArcs.empty().
         */
         static Automaton computeUnion (Memo * memo,
             Weight const & leftPreWeight, Weight const & leftFinalWeight,
