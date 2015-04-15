@@ -1,8 +1,25 @@
+.. _using:
+
+**************************
+Using the  Flipsta library
+**************************
+
+To use the library, the easiest thing to do is to clone the ``flipsta-build`` repository from GitHub.
+This contains the Flipsta library and its dependencies as Git submodules.
+
+::
+
+    git clone https://github.com/rogiervd/flipsta-build.git
+    cd flipsta-build/
+    git submodule init
+    git submodule update
+
+The Flipsta library should now be in ``flipsta-build/flipsta``.
+
 .. _building:
 
-*********************
-Building the library
-*********************
+Building
+========
 
 The first question to ask before trying to build the library is: do you really need to?
 You need to if
@@ -10,12 +27,12 @@ You need to if
 *   You would like to use the :ref:`Python interface <python>` and it is not possible to get a precompiled version.
 *   You would like to use C++ to read or write files in AT&T (OpenFst) format or HTK lattice format.
 
-Otherwise, to use the library in C++, adding the include paths ``<Flipsta root>/*/include`` on the C++ command line will do.
+Otherwise, to use the library in C++, adding the include paths ``flipsta-build/*/include`` on the C++ command line will do.
 Note that if you use BJam, then this should be almost automatic.
 
 .. rubric:: Actually building the library
 
-Building the Flipsta library uses Boost.Build, which comes with the Boost libraries.
+Building the Flipsta library uses Boost.Build, which comes with the Boost libraries, a well-known set of C++ libraries.
 Boost.Build is a joy to use if it works, and, regretfully, a pain if it does not.
 The main command this uses is ``bjam``.
 Should you have this all set up, then go to the root directory of Flipsta distribution and say on the command line
@@ -35,7 +52,6 @@ should run the unit tests.
 Assuming this does not succeed, a number of dependencies need to be installed.
 First, make sure you've got a C++ compiler installed.
 Then, install the Boost libraries, and Boost.Build.
-These are a set of well-known C++ libraries.
 On Ubuntu, this will install them::
 
     sudo apt-get install libboost-all-dev bjam
@@ -46,6 +62,7 @@ Quite likely, however, you need to edit ``~/user-config.jam`` (create it if it d
 
     import boost ;
     boost.use-project ;
+    using python ;
 
 However, this requires the file ``boost.jam`` somewhere where ``bjam`` can find it.
 Ubuntu does not seem to ship the automatic configuration files that would make this happen.
