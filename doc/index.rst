@@ -10,6 +10,15 @@ The name "Flipsta" evokes rapid state changes.
 Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
 **F**\ lip\ **s**\ t\ **a**.
 
+.. rubric:: Acknowledgements
+
+Development of this library was funded by
+
+-   EPSRC Project EP/I006583/1 (Generative Kernels and Score Spaces for Classification of Speech) within the Global Uncertainties Programme;
+-   a Google Research Award.
+
+.. rubric:: Contents
+
 .. toctree::
     :maxdepth: 2
 

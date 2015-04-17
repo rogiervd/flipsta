@@ -26,3 +26,11 @@ Then, try to build it:
     bjam test
 
 And, most likely, [find out how to fix what has gone wrong](http://mi.eng.cam.ac.uk/~rcv25/code-documentation/flipsta/flipsta/using.html#building-the-library).
+
+## Acknowledgements
+
+Development of this library was funded by
+
+-   EPSRC Project EP/I006583/1 (Generative Kernels and Score Spaces for Classification of Speech) within the Global Uncertainties Programme;
+-   a Google Research Award.
+
