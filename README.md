@@ -27,6 +27,10 @@ Then, try to build it:
 
 And, most likely, [find out how to fix what has gone wrong](http://mi.eng.cam.ac.uk/~rcv25/code-documentation/flipsta/flipsta/using.html#building-the-library).
 
+## License
+
+The Flipsta library is licensed under the GNU General Public License v2 (or higher).
+
 ## Acknowledgements
 
 Development of this library was funded by

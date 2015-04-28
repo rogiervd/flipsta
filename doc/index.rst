@@ -10,6 +10,10 @@ The name "Flipsta" evokes rapid state changes.
 Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
 **F**\ lip\ **s**\ t\ **a**.
 
+.. rubric:: License
+
+The Flipsta library is licensed under the GNU General Public License v2 (or higher).
+
 .. rubric:: Acknowledgements
 
 Development of this library was funded by
