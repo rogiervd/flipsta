@@ -7,7 +7,9 @@ Finite-state automata look like this:
 
 [The documentation of the library is here](http://mi.eng.cam.ac.uk/~rcv25/code-documentation/flipsta/).
 
-Build status of master branch: [![Build Status](https://travis-ci.org/rogiervd/flipsta.svg?branch=master)](https://travis-ci.org/rogiervd/flipsta)
+Branch | Build/test | Test coverage
+-------|------------|--------------
+master | [![Build Status](https://travis-ci.org/rogiervd/flipsta.svg?branch=master)](https://travis-ci.org/rogiervd/flipsta) | [![Coverage Status](https://coveralls.io/repos/rogiervd/flipsta/badge.svg?branch=master)](https://coveralls.io/r/rogiervd/flipsta?branch=master)
 
 ## Using the Flipsta library
 
