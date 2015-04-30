@@ -16,7 +16,16 @@ before_install:
 
 install:
   - sudo apt-get install -qq libboost1.48-all-dev python-dev
-  - sudo apt-get install -qq lcov
+  # Download newer version (>= 1.10) of lcov than Ubuntu 12.04 (1.09) has.
+  - if [ "$VARIANT" == "debug" ]; then
+      wget -O lcov.tar.gz http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz;
+      mkdir lcov;
+      tar -xzf lcov.tar.gz -C ./lcov --strip-components=1;
+      cd lcov;
+      sudo make install;
+      cd ..;
+      rm -Rf lcov lcov.tar.gz;
+    fi
   - gem install coveralls-lcov
 
 # It just so happens that ${CC} corresponds to the Boost.Build toolset name.
@@ -26,8 +35,8 @@ script:
       COVERAGE="cxxflags='--coverage' linkflags='--coverage'";
     else
       COVERAGE="";
-    fi;
-    ./test/bjam_test_in_parent_directory.sh toolset=${CC} variant=${VARIANT} ${COVERAGE};
+    fi
+  - ./test/bjam_test_in_parent_directory.sh -j2 toolset=${CC} variant=${VARIANT} ${COVERAGE}
 
 after_success:
   # For debug builds, report coverage on coveralls.io.
@@ -39,7 +48,6 @@ after_success:
       cp `find bin -name '*.gcno'` coverage-data/;
       cp `find bin -name '*.gcda'` coverage-data/;
       mkdir coverage/;
-      lcov --compat-libtool --directory coverage-data --base-directory ./ --capture --output-file coverage/coverage.info;
-      lcov --extract coverage/coverage.info `pwd`/flipsta/'*' -o coverage/coverage.info.cleaned;
-      coveralls-lcov coverage/coverage.info.cleaned;
+      lcov --compat-libtool --no-external --directory coverage-data --base-directory ./flipsta/ --capture --output-file coverage/coverage.info;
+      coveralls-lcov coverage/coverage.info;
     fi
