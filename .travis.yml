@@ -4,6 +4,10 @@ compiler:
   - gcc
   - clang
 
+env:
+  - VARIANT=debug
+  - VARIANT=release
+
 before_install:
   - sudo apt-get update -qq
   - wget https://github.com/boostorg/build/raw/develop/src/contrib/boost.jam -O ~/boost.jam
@@ -11,16 +15,31 @@ before_install:
   - cat ~/user-config.jam
 
 install:
-  - sudo apt-get install -qq libboost1.48-all-dev
+  - sudo apt-get install -qq libboost1.48-all-dev python-dev
+  - sudo apt-get install -qq lcov
+  - gem install coveralls-lcov
 
 # It just so happens that ${CC} corresponds to the Boost.Build toolset name.
-script: ./test/bjam_test_in_parent_directory.sh toolset=${CC} variant=${VARIANT}
+script:
+  # For debug builds, compute coverage of tests.
+  - if [ "$VARIANT" == "debug" ]; then
+      COVERAGE="cxxflags='--coverage' linkflags='--coverage'";
+    else
+      COVERAGE="";
+    fi;
+    ./test/bjam_test_in_parent_directory.sh toolset=${CC} variant=${VARIANT} ${COVERAGE};
 
-env:
-  - VARIANT=debug
-  - VARIANT=release
-
-branches:
-  only:
-    - master
-    - travis-test
+after_success:
+  # For debug builds, report coverage on coveralls.io.
+  # Run lcov and then coveralls-lcov as per README at
+  #   https://github.com/okkez/coveralls-lcov
+  - if [ "$VARIANT" == "debug" ]; then
+      cd ../flipsta-build;
+      mkdir coverage-data/;
+      cp `find bin -name '*.gcno'` coverage-data/;
+      cp `find bin -name '*.gcda'` coverage-data/;
+      mkdir coverage/;
+      lcov --compat-libtool --directory coverage-data --base-directory ./ --capture --output-file coverage/coverage.info;
+      lcov --extract coverage/coverage.info `pwd`/flipsta/'*' -o coverage/coverage.info.cleaned;
+      coveralls-lcov coverage/coverage.info.cleaned;
+    fi
