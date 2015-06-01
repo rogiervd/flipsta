@@ -12,7 +12,7 @@ Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
 
 .. rubric:: License
 
-The Flipsta library is licensed under the GNU General Public License v2 (or higher).
+The Flipsta library is licensed under the Apache License, Version 2.0.
 
 .. rubric:: Acknowledgements
 

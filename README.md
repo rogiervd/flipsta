@@ -31,7 +31,7 @@ And, most likely, [find out how to fix what has gone wrong](http://mi.eng.cam.ac
 
 ## License
 
-The Flipsta library is licensed under the GNU General Public License v2 (or higher).
+The Flipsta library is licensed under the Apache License, Version 2.0.
 
 ## Acknowledgements
 
