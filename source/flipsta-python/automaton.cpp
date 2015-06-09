@@ -36,6 +36,7 @@ limitations under the License.
 #include "flipsta/draw.hpp"
 
 #include "module.hpp"
+#include "state.hpp"
 #include "semiring.hpp"
 #include "arc.hpp"
 
@@ -319,7 +320,7 @@ void exposeAutomaton() {
     using namespace flipsta::python;
     using range::python_range;
 
-    typedef int State;
+    typedef flipsta::python::State State;
     typedef flipsta::python::Semiring Label;
 
     typedef flipsta::Automaton <State, Label> Automaton;

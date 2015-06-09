@@ -9,6 +9,7 @@ project flipsta-python
     ;
 
 python-extension flipsta :
+    state.cpp
     # semiring.cpp causes issues on Clang 3.0: if it is compiled with
     # optimisation, the extension segfaults when used from Python.
     # Therefore, optimisation is switched off.

@@ -22,3 +22,7 @@ run-test test-automaton :
 
 run-test test-automaton-viterbi :
     /flipsta//flipsta-python test-automaton-viterbi.py viterbi_semiring.py ;
+
+python-extension check_objects : check_objects.cpp ;
+run-test test-objects :
+    /flipsta//flipsta-python check_objects test-objects.py ;

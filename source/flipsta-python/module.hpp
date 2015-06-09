@@ -22,6 +22,7 @@ module definition.
 #ifndef FLIPSTA_PYTHON_MODULE_HPP
 #define FLIPSTA_PYTHON_MODULE_HPP
 
+void exposeState();
 void exposeSemiring();
 void exposeAutomaton();
 void exposeExceptions();

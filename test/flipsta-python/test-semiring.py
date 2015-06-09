@@ -66,20 +66,41 @@ assert (Cost (1) == Cost (1))
 assert (Cost (1) != Cost (2))
 
 # Test the interaction with Zero and One.
-for value in [float ('-inf'), -2.5, -1, 0, +0.5, 3, float ('-inf')]:
-    assert (Cost (value) == Cost (value) * One == Cost (value))
-    assert (Cost (value) == One * Cost (value) == Cost (value))
+examples = [-2.5, -1, 0, +0.5, 3, float ('+inf')]
+for cost in (Cost (value) for value in examples):
+    assert (cost == cost * One == cost)
+    assert (cost == One * cost == cost)
 
-    assert (Cost (value) == Cost (value) + Zero == Cost (value))
-    assert (Cost (value) == Zero + Cost (value) == Cost (value))
+    assert (cost == cost + Zero == cost)
+    assert (cost == Zero + cost == cost)
 
-    assert (Zero == Cost (value) * Zero == Zero)
-    assert (Zero == Zero * Cost (value) == Zero)
+    assert (Zero == cost * Zero == Zero)
+    assert (Zero == Zero * cost == Zero)
 
 assert (Cost (float ('inf')) == Zero)
 assert (Zero == Cost (float ('inf')))
 assert (Cost (0) == One)
 assert (One == Cost (0))
+
+assert (hash (Cost (float ('inf'))) == hash (Zero))
+assert (hash (Cost (0)) == hash (One))
+
+# Test that hash() is consistent with equality.
+for value1 in examples:
+    cost1 = Cost (value1)
+    for value2 in examples:
+        cost2 = Cost (value2)
+        if value1 == value2:
+            assert (cost1 == cost2)
+            assert (not cost1 != cost2)
+            assert (hash (cost1) == hash (cost2))
+        else:
+            assert (cost1 != cost2)
+            assert (not cost1 == cost2)
+            # This should almost always succeed if the implementation is
+            # correct.
+            # If it does not, changing the example values is a fine solution.
+            assert (hash (cost1) != hash (cost2))
 
 cost0Copy = Cost (0)
 cost1Copy = Cost (1)

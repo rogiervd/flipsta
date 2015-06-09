@@ -231,6 +231,7 @@ The Python class must support the following:
 
 *   Interaction with special values ``Zero`` and ``One``.
 *   Comparing for equality, usually as a method ``__eq__``, and ``__ne__``.
+*   Computing the hash value, by providing a method ``__hash__``.
 *   Addition, by providing methods ``__add__`` and ``__radd__`` (the latter is always trivial).
 *   Multiplication, by providing methods ``__mul__`` and ``__rmul__`` (the latter is sometimes, but not always, trivial).
 
@@ -287,15 +288,16 @@ That means that ``x * Zero`` must be equal to ``Zero``.
 It is now already possible to start writing the unit test::
 
     # Test the interaction with Zero and One.
-    for value in [float ('-inf'), -2.5, -1, 0, +0.5, 3, float ('-inf')]:
-        assert (Cost (value) * One == Cost (value))
-        assert (One * Cost (value) == Cost (value))
+    examples = [-2.5, -1, 0, +0.5, 3, float ('+inf')]
+    for cost in [Cost (value) for value in examples]:
+        assert (cost == cost * One == cost)
+        assert (cost == One * cost == cost)
 
-        assert (Cost (value) + Zero == Cost (value))
-        assert (Zero + Cost (value) == Cost (value))
+        assert (cost == cost + Zero == cost)
+        assert (cost == Zero + cost == cost)
 
-        assert (Zero == Cost (value) * Zero == Zero)
-        assert (Zero == Zero * Cost (value) == Zero)
+        assert (Zero == cost * Zero == Zero)
+        assert (Zero == Zero * cost == Zero)
 
 So what values should be equivalent to ``Zero`` and ``One``?
 For ``Zero``, a value is required so that ``x + Zero == x``.
@@ -310,6 +312,12 @@ The unit test can therefore be augmented with::
     assert (Zero == Cost (float ('inf')))
     assert (Cost (0) == One)
     assert (One == Cost (0))
+
+    assert (hash (Cost (float ('inf'))) == hash (Zero))
+    assert (hash (Cost (0)) == hash (One))
+
+Note that we are also testing ``hash``.
+To be able to use our semiring in hashed collections, in Python and C++, `the hash value must be equal for two values that are equal <https://docs.python.org/3/reference/datamodel.html#object.__hash__>`_.
 
 Defining operations
 ^^^^^^^^^^^^^^^^^^^
@@ -328,6 +336,20 @@ Testing for equality simply compares the numerical values, but treating ``One`` 
         return not self == other
 
 Note the explicit checks ``is Zero`` and ``is One``: these will come up again.
+
+``__hash__`` should compute a hash value, an integer that is equal for values that are equal, and with high probability not equal for values that are not equal.
+Since, again, our class should be interoperable with ``Zero`` and ``One``, they need to be treated explicitly.
+We need to make sure that ``hash (Cost (0))`` yields exactly the same value as ``hash (One)``, and similar for ``Zero``::
+
+    def __hash__ (self):
+        if self.value == 0:
+            return hash (One)
+        elif self.value == float ('inf'):
+            return hash (Zero)
+        else:
+            return hash (self.value)
+
+Note that ``hash (One)`` and ``hash (Zero)`` will return different values between separate invocations of Python.
 
 Addition should choose the minimum of the two values.
 But it should also deal with ``Zero`` and ``One``::
@@ -386,17 +408,17 @@ To test the semiring, a small automaton can be produced::
 
     automaton = flipsta.Automaton()
 
-    automaton.add_state (0)
+    automaton.add_state ('start')
     automaton.add_state (1)
-    automaton.add_state (2)
+    automaton.add_state ('two')
     automaton.add_state (3)
 
-    automaton.add_arc (0, 1, Cost (2.))
-    automaton.add_arc (1, 2, Cost (0.))
-    automaton.add_arc (2, 3, Cost (.5))
-    automaton.add_arc (0, 3, Cost (1.5))
+    automaton.add_arc ('start', 1, Cost (2.))
+    automaton.add_arc (1, 'two', Cost (0.))
+    automaton.add_arc ('two', 3, Cost (.5))
+    automaton.add_arc ('start', 3, Cost (1.5))
 
-    automaton.set_terminal_label (True, 0, Cost (1.))
+    automaton.set_terminal_label (True, 'start', Cost (1.))
     automaton.set_terminal_label (False, 3, Cost (2.))
 
 This can be drawn::
@@ -414,10 +436,12 @@ and then on the command line::
 
 It is now possible, for example, to compute the shortest distance from state ``0`` to every other state::
 
-    distances = list (automaton.shortest_distance_acyclic_from (0))
-
-    assert (distances == [
-        (0, Cost (.5)), (1, Cost (2.5)), (2, Cost (1.)), (3, Cost (1.5))])
+    distances = list (make_automaton().shortest_distance_acyclic_from ("start"))
+    assert (len (distances) == 4)
+    assert (distances [0] == ('start', Cost (0)))
+    assert (distances [1] == (1, Cost (2.)))
+    assert (distances [2] == ('two', Cost (2.)))
+    assert (distances [3] == (3, Cost (1.5)))
 
 
 .. _semiring: http://en.wikipedia.org/wiki/Semiring

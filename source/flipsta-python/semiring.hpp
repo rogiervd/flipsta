@@ -174,6 +174,10 @@ namespace flipsta { namespace python {
     inline Semiring operator* (Semiring const & left, Semiring const & right)
     { return Semiring (left.underlying() * right.underlying()); }
 
+    // Hash value.
+    inline std::size_t hash_value (Semiring const & s)
+    { return std::size_t (PyObject_Hash (s.underlying().ptr())); }
+
     // Print.
     inline std::ostream & operator<< (std::ostream & os, Zero const &)
     { return os << "<Zero>"; }

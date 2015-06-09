@@ -31,6 +31,7 @@ BOOST_PYTHON_MODULE (flipsta) {
 
     range::python::initialise_iterator();
 
+    exposeState();
     exposeSemiring();
     exposeAutomaton();
     exposeExceptions();

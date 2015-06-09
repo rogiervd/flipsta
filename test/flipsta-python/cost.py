@@ -37,6 +37,14 @@ class Cost:
     def __ne__ (self, other):
         return not self == other
 
+    def __hash__ (self):
+        if self.value == 0:
+            return hash (One)
+        elif self.value == float ('inf'):
+            return hash (Zero)
+        else:
+            return hash (self.value)
+
     def __add__ (self, other):
         if other is Zero:
             return self
