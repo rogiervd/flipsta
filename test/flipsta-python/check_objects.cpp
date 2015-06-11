@@ -22,6 +22,8 @@ or as labels, respectively.
 
 #include <cassert>
 #include <vector>
+#include <iostream>
+#include <ostream>
 
 #include <boost/python.hpp>
 #include <boost/functional/hash.hpp>
