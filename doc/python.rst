@@ -48,14 +48,14 @@ The automaton also knows about start and end states (with labels).
     .. py:method:: add_state(state)
 
         Add a state to the automaton.
-        For this automaton type, states must be of type ``int``.
+        States can be of any type, as long as they have equality and ``hash()`` defined correctly.
         States must be added before arcs can be added between them.
 
         For example::
 
-            automaton.add_state (0)
+            automaton.add_state ('start')
             automaton.add_state (1)
-            automaton.add_state (2)
+            automaton.add_state ('two')
             automaton.add_state (3)
 
     .. py:method:: has_state(state)
@@ -73,7 +73,7 @@ The automaton also knows about start and end states (with labels).
 
         For example::
 
-            assert (list (automaton.states()) == [0, 1, 2, 3])
+            assert (list (automaton.states()) == ['start', 1, 'two', 3])
 
 
     .. py:method:: add_arc(source, destination, label)
@@ -82,7 +82,7 @@ The automaton also knows about start and end states (with labels).
 
         For example, assuming that the class ``Cost`` has been defined as in :ref:`the example below <python_semiring>`::
 
-            automaton.add_arc (0, 3, Cost (1.5))
+            automaton.add_arc ('start', 3, Cost (1.5))
 
     .. py:method:: arcs_on(forward, state)
 
@@ -91,8 +91,8 @@ The automaton also knows about start and end states (with labels).
 
         For example::
 
-            (arc,) = automaton.arcs_on (True, 0)
-            assert (arc.state (False) == 0)
+            (arc,) = automaton.arcs_on (True, 'start')
+            assert (arc.state (False) == 'start')
             assert (arc.state (True) == 3)
             assert (arc.label() == Cost (1.5))
 
@@ -106,14 +106,12 @@ The automaton also knows about start and end states (with labels).
 
         For example::
 
-            # Make 0 a start state with cost 1.
-            automaton.set_terminal_label (True, 0, Cost (1.))
+            # Make 'start' a start state with cost 1.
+            automaton.set_terminal_label (True, 'start', Cost (1.))
             # Make 3 a final state with cost 2.
             automaton.set_terminal_label (False, 3, Cost (2.))
             # Remove 1 from the set of start states.
             automaton.set_terminal_label (True, 1, Zero)
-
-
 
 
     .. py:method:: terminal_label(start, state)
@@ -124,7 +122,7 @@ The automaton also knows about start and end states (with labels).
 
             For example::
 
-                assert (automaton.terminal_label (True, 0) == Cost (1.))
+                assert (automaton.terminal_label (True, 'start') == Cost (1.))
                 assert (automaton.terminal_label (True, 1) == Zero)
                 assert (automaton.terminal_label (False, 3) == Cost (2.))
 
@@ -137,7 +135,7 @@ The automaton also knows about start and end states (with labels).
 
             For example::
 
-                assert (list (automaton.terminal_states (True)) == [(0, Cost (1.))])
+                assert (list (automaton.terminal_states (True)) == [('start', Cost (1.))])
                 assert (list (automaton.terminal_states (False)) == [(3, Cost (2.))])
 
 
@@ -423,7 +421,7 @@ To test the semiring, a small automaton can be produced::
 
 This can be drawn::
 
-    make_automaton().draw ("./automaton.dot", True)
+    make_automaton().draw ('./automaton.dot', True)
 
 and then on the command line::
 
@@ -436,7 +434,7 @@ and then on the command line::
 
 It is now possible, for example, to compute the shortest distance from state ``0`` to every other state::
 
-    distances = list (make_automaton().shortest_distance_acyclic_from ("start"))
+    distances = list (make_automaton().shortest_distance_acyclic_from ('start'))
     assert (len (distances) == 4)
     assert (distances [0] == ('start', Cost (0)))
     assert (distances [1] == (1, Cost (2.)))
