@@ -32,7 +32,7 @@ Shortest-distance algorithms.
 
 #include "range/core.hpp"
 #include "range/for_each_macro.hpp"
-
+#include "range/transform.hpp"
 #include "range/tuple.hpp"
 
 #include "math/magma.hpp"
@@ -335,6 +335,26 @@ private:
     // we can.
     Map <State, Label, true, false> distances;
 
+    /**
+    Functor that returns any pair (state, weight) as-is, but throws if the
+    automaton does not contain the state.
+    */
+    class PassThroughIfStateExists {
+        AutomatonPtr automaton_;
+    public:
+        PassThroughIfStateExists (AutomatonPtr const & automaton)
+        : automaton_ (automaton) {}
+
+        template <class StateAndWeight> StateAndWeight operator() (
+            StateAndWeight && state_and_weight) const
+        {
+            auto && state = range::first (state_and_weight);
+            if (!automaton_->hasState (state))
+                throw StateNotFound() << errorInfoState <State> (state);
+            return std::forward <StateAndWeight> (state_and_weight);
+        }
+    };
+
 public:
     /**
     Initialise.
@@ -343,14 +363,17 @@ public:
     \param initialStates
         Initial weights for states.
         This is used only once, during construction.
+
+    \throw AutomatonNotFound
+        iff any state in \a initialStates is not in the automaton.
     */
-    template <class QAutomatonPtr, class InitialStates>
-        ShortestDistanceAcyclicRange (
-            QAutomatonPtr && automaton, InitialStates && initialStates)
-    : automaton (std::forward <QAutomatonPtr> (automaton)),
-        order (topologicalOrder (this->automaton, Direction())),
+    template <class InitialStates> ShortestDistanceAcyclicRange (
+            AutomatonPtr const & automaton, InitialStates && initialStates)
+    : automaton (automaton),
+        order (topologicalOrder (automaton, Direction())),
         distances (math::zero <Label>(),
-            std::forward <InitialStates> (initialStates)) {}
+            range::transform (PassThroughIfStateExists (automaton),
+                std::forward <InitialStates> (initialStates))) {}
 
     bool empty (::direction::front) const
     { return range::empty (order); }

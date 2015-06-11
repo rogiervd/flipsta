@@ -76,6 +76,14 @@ BOOST_AUTO_TEST_CASE (testAcyclicShortestDistance) {
 
         compare (shortestDistanceAcyclicFrom (automaton, 'c', forward),
             reference);
+
+        // State that does not exist.
+        BOOST_CHECK_THROW (
+            shortestDistanceAcyclicFrom (automaton, 'g', forward),
+            flipsta::StateNotFound);
+        BOOST_CHECK_THROW (
+            shortestDistanceAcyclicFrom (automaton, 'q', forward),
+            flipsta::StateNotFound);
     }
 
     // Forward from 'd'.
@@ -108,6 +116,11 @@ BOOST_AUTO_TEST_CASE (testAcyclicShortestDistance) {
 
         compare (shortestDistanceAcyclic (automaton, start, forward),
             reference);
+
+        // State that does not exist.
+        start.push_back (std::make_pair ('q', Cost (3)));
+        BOOST_CHECK_THROW (shortestDistanceAcyclic (automaton, start, forward),
+            flipsta::StateNotFound);
     }
 
     /*
