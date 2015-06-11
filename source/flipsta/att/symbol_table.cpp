@@ -27,7 +27,7 @@ http://www2.research.att.com/~fsmtools/fsm/man/fsm.5.html
 #include <boost/format.hpp>
 #include <boost/bimap.hpp>
 
-#include "utility/make_unique.hpp"
+#include "utility/unique_ptr.hpp"
 
 #include "range/tuple.hpp"
 #include "range/std/tuple.hpp"

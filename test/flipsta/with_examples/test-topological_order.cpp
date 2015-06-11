@@ -19,6 +19,8 @@ limitations under the License.
 
 #include "flipsta/topological_order.hpp"
 
+#include <memory>
+
 #include <boost/exception/get_error_info.hpp>
 
 #include "math/arithmetic_magma.hpp"
@@ -38,12 +40,13 @@ using flipsta::AutomatonNotAcyclic;
 
 BOOST_AUTO_TEST_SUITE(test_suite_topological_order)
 
-template <class Automaton, class Direction> inline
+template <class AutomatonPointer, class Direction> inline
     void runThroughTopologicalOrder (
-        Automaton const & automaton, Direction const & direction)
+        AutomatonPointer && automaton, Direction const & direction)
 {
     // Exhaust the range but do nothing else.
-    RANGE_FOR_EACH (state, flipsta::topologicalOrder (automaton, direction))
+    RANGE_FOR_EACH (state, flipsta::topologicalOrder (
+        std::forward <AutomatonPointer> (automaton), direction))
         (void) state;
 }
 
@@ -55,9 +58,9 @@ BOOST_AUTO_TEST_CASE (testTopologicalOrderCycle) {
     typedef int State;
     typedef flipsta::Automaton <State, double> Automaton;
     {
-        Automaton automaton;
-        automaton.addState (1);
-        automaton.addArc (1, 1, 5.);
+        auto automaton = std::make_shared <Automaton>();
+        automaton->addState (1);
+        automaton->addArc (1, 1, 5.);
 
         try {
             runThroughTopologicalOrder (automaton, forward);
@@ -77,13 +80,13 @@ BOOST_AUTO_TEST_CASE (testTopologicalOrderCycle) {
             AutomatonNotAcyclic);
     }
     {
-        Automaton automaton;
-        automaton.addState (1);
-        automaton.addState (2);
-        automaton.addState (3);
-        automaton.addArc (1, 2, 5.);
-        automaton.addArc (2, 3, 5.);
-        automaton.addArc (3, 1, 5.);
+        auto automaton = std::make_shared <Automaton>();
+        automaton->addState (1);
+        automaton->addState (2);
+        automaton->addState (3);
+        automaton->addArc (1, 2, 5.);
+        automaton->addArc (2, 3, 5.);
+        automaton->addArc (3, 1, 5.);
 
         BOOST_CHECK_THROW (runThroughTopologicalOrder (automaton, forward),
             AutomatonNotAcyclic);
@@ -93,10 +96,8 @@ BOOST_AUTO_TEST_CASE (testTopologicalOrderCycle) {
 }
 
 BOOST_AUTO_TEST_CASE (testTopologicalOrder) {
-    auto automaton = acyclicExample();
-
     {
-        auto order = flipsta::topologicalOrder (automaton, forward);
+        auto order = flipsta::topologicalOrder (acyclicExample(), forward);
 
         BOOST_CHECK_EQUAL (first (order), 'd');
         BOOST_CHECK_EQUAL (range::second (order), 'c');
@@ -107,7 +108,7 @@ BOOST_AUTO_TEST_CASE (testTopologicalOrder) {
         BOOST_CHECK_EQUAL (size (order), 6);
     }
     {
-        auto order = flipsta::topologicalOrder (automaton, backward);
+        auto order = flipsta::topologicalOrder (acyclicExample(), backward);
 
         // Traverse destructively.
         BOOST_CHECK_EQUAL (chop_in_place (order), 'e');

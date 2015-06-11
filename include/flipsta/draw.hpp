@@ -82,6 +82,8 @@ template <class Automaton>
     inline void draw (std::ostream & file, Automaton const & automaton,
         bool horizontal = false)
 {
+    static_assert (IsAutomaton <Automaton>::value,
+        "Automaton must be an automaton.");
     using draw_detail::makePrintable;
 
     file << "digraph flipstaGraph {\n"

@@ -21,6 +21,7 @@ limitations under the License.
 #include <type_traits>
 
 #include "utility/returns.hpp"
+#include "utility/unique_ptr.hpp"
 
 #include "math/magma.hpp"
 
@@ -40,17 +41,18 @@ which can be of different types.
 
 Normally, objects of this class should be produced using \c transformLabels.
 
-\tparam Underlying
-    The underlying automaton.
-    This can be a reference, in which case the responsibility for keeping it
-    alive rests with the caller.
+\param underlying
+    Pointer to the automaton to traverse.
+    A copy of the pointer will be kept, and destructed when the range is
+    destructed.
+    The pointer must be copyable, and therefore cannot be a unique_ptr.
 \tparam Function
     Type of the function that transforms the internal label type.
 \tparam Descriptor
     The label descriptor of the wrapper.
     This must be compatible with the label type that Function results in.
 */
-template <class Underlying, class Function, class Descriptor>
+template <class UnderlyingPtr, class Function, class Descriptor>
     class TransformedLabelAutomaton;
 
 /** \brief
@@ -70,9 +72,10 @@ Its return type does always need to be in one semiring.
 \todo Describe this somewhere in the documentation.
 
 \param underlying
-    The underlying automaton.
-    If this is a reference type, the reference is kept, and the caller is
-    responsible for keeping it alive as long as necessary.
+    Pointer to the automaton to traverse.
+    A copy of the pointer will be kept, and destructed when the range is
+    destructed.
+    The pointer must be copyable, and therefore cannot be a unique_ptr.
 \param function
     The function used to transform the original compressed labels to the new
     compressed labels.
@@ -84,13 +87,15 @@ Its return type does always need to be in one semiring.
 Since this works on the underlying representation, it is not possible to
 automatically determine the descriptor.
 */
-template <class Underlying, class Function, class Descriptor> inline
-    TransformedLabelAutomaton <Underlying, Function, Descriptor>
-    transformLabels (Underlying && underlying,
+template <class UnderlyingPtr, class Function, class Descriptor> inline
+    TransformedLabelAutomaton <
+        typename std::decay <UnderlyingPtr>::type, Function, Descriptor>
+    transformLabels (UnderlyingPtr && underlying,
         Function const & function, Descriptor const & descriptor)
 {
-    return TransformedLabelAutomaton <Underlying, Function, Descriptor> (
-        std::forward <Underlying> (underlying), function, descriptor);
+    return TransformedLabelAutomaton <
+        typename std::decay <UnderlyingPtr>::type, Function, Descriptor> (
+            std::forward <UnderlyingPtr> (underlying), function, descriptor);
 }
 
 namespace transform_label_detail {
@@ -141,12 +146,20 @@ The transformation is allowed to keep the type of the labels the same, or to
 change it.
 Its return type does always need to be in one semiring.
 
+For some operations, the pointer to the underlying automaton must be
+copy-constructible.
+The pointer must therefore always be copy-constructible.
+The motivation for this restriction is that, for example, topologicalOrder might
+otherwise not use an optimised implementation for the underlying type.
+That would be a hard-to-debug pessimisation.
+
 \sa transformLabels
 
 \param underlying
-    The underlying automaton.
-    If this is a reference type, the reference is kept, and the caller is
-    responsible for keeping it alive as long as necessary.
+    Pointer to the automaton to traverse.
+    A copy of the pointer will be kept, and destructed when the range is
+    destructed.
+    The pointer must be copyable, and therefore cannot be a unique_ptr.
 \param function
     The function used to transform the original expanded labels to the new
     expanded labels.
@@ -156,42 +169,59 @@ Its return type does always need to be in one semiring.
 
 \todo It might be possible to automatically determine the default descriptor.
 */
-template <class Underlying, class Function, class Descriptor,
+template <class UnderlyingPtr, class Function, class Descriptor,
     class ExpandAndCompress = transform_label_detail::ExpandAndCompress <
-        typename DescriptorType <Underlying>::type, Descriptor, Function>>
-    inline TransformedLabelAutomaton <Underlying, ExpandAndCompress, Descriptor>
-    transformExpandedLabels (Underlying && underlying,
+        typename PtrDescriptorType <UnderlyingPtr>::type, Descriptor, Function>>
+    inline TransformedLabelAutomaton <typename std::decay <UnderlyingPtr>::type,
+    ExpandAndCompress, Descriptor>
+    transformExpandedLabels (UnderlyingPtr && underlying,
         Function const & function, Descriptor const & descriptor)
 {
-    return transformLabels (std::forward <Underlying> (underlying),
-        transform_label_detail::ExpandAndCompress <
-            typename DescriptorType <Underlying>::type, Descriptor, Function> (
-                underlying.descriptor(), descriptor, function), descriptor);
+    return transformLabels (std::forward <UnderlyingPtr> (underlying),
+        transform_label_detail::ExpandAndCompress <typename
+            PtrDescriptorType <UnderlyingPtr>::type, Descriptor, Function> (
+                underlying->descriptor(), descriptor, function), descriptor);
 }
 
 struct TransformLabelsTag;
 
-template <class Underlying, class Function, class Descriptor>
+template <class UnderlyingPtr, class Function, class Descriptor>
     struct AutomatonTagUnqualified <
-        TransformedLabelAutomaton <Underlying, Function, Descriptor>>
+        TransformedLabelAutomaton <UnderlyingPtr, Function, Descriptor>>
 { typedef TransformLabelsTag type; };
 
-template <class Underlying, class Function, class Descriptor>
+template <class UnderlyingPtr, class Function, class Descriptor>
     class TransformedLabelAutomaton
 {
 public:
-    typedef typename std::decay <Underlying>::type DecayedUnderlying;
+    static_assert (std::is_same <UnderlyingPtr,
+        typename std::decay <UnderlyingPtr>::type>::value,
+        "UnderlyingPtr must be unqualified.");
 
-    typedef typename DecayedUnderlying::State State;
+    static_assert (!utility::is_unique_ptr <UnderlyingPtr>::value,
+        "Sorry, the pointer to the underlying automaton must be copyable, and "
+        "therefore cannot be a unique_ptr. "
+        "It needs to be shared internally. "
+        "You may want to use shared_ptr instead.");
+    static_assert (
+        std::is_constructible <UnderlyingPtr, UnderlyingPtr const &>::value,
+        "Sorry, the pointer to the underlying automaton must be copyable. "
+        "It needs to be shared internally. "
+        "You may want to use, say, std::shared_ptr.");
 
-    typedef typename CompressedLabelType <DecayedUnderlying>::type
+    typedef typename std::decay <typename utility::pointee <UnderlyingPtr>::type
+        >::type Underlying;
+
+    typedef typename Underlying::State State;
+
+    typedef typename CompressedLabelType <Underlying>::type
         CompressedUnderlyingLabel;
     typedef typename std::result_of <Function (CompressedUnderlyingLabel)>::type
         CompressedLabel;
     typedef typename label::ExpandedLabelType <Descriptor, CompressedLabel
         >::type Label;
 
-    typedef typename DecayedUnderlying::CompressedTerminalLabel
+    typedef typename Underlying::CompressedTerminalLabel
         CompressedUnderlyingTerminalLabel;
     typedef typename std::result_of <
             Function (CompressedUnderlyingTerminalLabel)>::type
@@ -206,21 +236,23 @@ public:
         "in the same semiring.");
 
 private:
-    Underlying underlying_;
+    UnderlyingPtr underlying_;
     Function function_;
     Descriptor descriptor_;
 
 public:
-    TransformedLabelAutomaton (Underlying && underlying,
+    template <class QUnderlyingPtr>
+    TransformedLabelAutomaton (QUnderlyingPtr && underlying,
         Function const & function, Descriptor const & descriptor)
-    : underlying_ (underlying), function_ (function), descriptor_ (descriptor)
+    : underlying_ (std::forward <QUnderlyingPtr> (underlying)),
+        function_ (function), descriptor_ (descriptor)
     {}
 
-    Underlying const & underlying() const { return underlying_; }
+    UnderlyingPtr const & underlying() const { return underlying_; }
 
     Descriptor const & descriptor() const { return descriptor_; }
 
-    auto states() const RETURNS (flipsta::states (underlying_));
+    auto states() const RETURNS (flipsta::states (*underlying_));
 
     // The topological order may be specialised for the underlying automaton,
     // and it is bound to be faster anyway, so forward to it.
@@ -229,24 +261,24 @@ public:
     RETURNS (flipsta::topologicalOrder (underlying_, direction));
 
     auto hasState (State const & state) const
-    RETURNS (flipsta::hasState (underlying_, state));
+    RETURNS (flipsta::hasState (*underlying_, state));
 
     template <class Direction>
         auto terminalStatesCompressed (Direction const & direction) const
     RETURNS (transformation::TransformLabelsForStates() (function_,
-        flipsta::terminalStatesCompressed (underlying_, direction)));
+        flipsta::terminalStatesCompressed (*underlying_, direction)));
 
     template <class Direction>
         auto terminalLabelCompressed (
             Direction const & direction, State const & state) const
     RETURNS (function_ (
-        flipsta::terminalLabelCompressed (underlying_, direction, state)));
+        flipsta::terminalLabelCompressed (*underlying_, direction, state)));
 
     template <class Direction>
         auto arcsOnCompressed (
             Direction const & direction, State const & state) const
     RETURNS (transformation::TransformLabelsOnArcs() (function_,
-        flipsta::arcsOnCompressed (underlying_, direction, state)));
+        flipsta::arcsOnCompressed (*underlying_, direction, state)));
 };
 
 } // namespace flipsta

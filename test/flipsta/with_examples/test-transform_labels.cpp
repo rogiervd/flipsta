@@ -78,13 +78,13 @@ BOOST_AUTO_TEST_SUITE(test_suite_topological_order)
 
 BOOST_AUTO_TEST_CASE (testProjectLabels) {
     // This example has a lexicographical label; we extract the cost.
-    auto example = acyclicSequenceExample();
+    auto example = utility::shared_from_unique (acyclicSequenceExample());
 
     typedef math::cost <float> Cost;
 
     auto transformed = flipsta::transformLabels (
         example, Project <0>(),
-        range::first (example.descriptor().components()));
+        range::first (example->descriptor().components()));
 
     static_assert (std::is_same <
         flipsta::LabelType <decltype (transformed)>::type, Cost>::value, "");
@@ -120,12 +120,12 @@ BOOST_AUTO_TEST_CASE (testProjectLabels) {
 
 BOOST_AUTO_TEST_CASE (testSquareCost) {
     // This example has a lexicographical label; we extract the cost.
-    auto example = acyclicExample();
+    auto example = utility::shared_from_unique (acyclicExample());
 
     typedef math::cost <float> Cost;
 
     auto transformed = flipsta::transformLabels (
-        example, Square(), example.descriptor());
+        example, Square(), example->descriptor());
 
     static_assert (std::is_same <
         flipsta::LabelType <decltype (transformed)>::type, Cost>::value, "");
@@ -161,14 +161,14 @@ BOOST_AUTO_TEST_CASE (testSquareCost) {
 
 BOOST_AUTO_TEST_CASE (testSquareSequence) {
     // This example has a sequence label, so that it is possible to test types.
-    auto example = prefixExample();
+    auto example = utility::shared_from_unique (prefixExample());
 
     typedef math::empty_sequence <char> EmptySequence;
     typedef math::single_sequence <char> SingleSequence;
     typedef math::sequence <char> Sequence;
 
     auto transformed = flipsta::transformLabels (
-        example, Square(), example.descriptor());
+        example, Square(), example->descriptor());
 
     typedef decltype (transformed) TransformedAutomaton;
 
@@ -221,7 +221,7 @@ BOOST_AUTO_TEST_CASE (testSquareSequence) {
 
 BOOST_AUTO_TEST_CASE (testTransformExpandedLabels) {
     // This example has a sequence label, so that it is possible to test types.
-    auto example = prefixExample();
+    auto example = utility::shared_from_unique (prefixExample());
 
     typedef math::empty_sequence <char> EmptySequence;
     typedef math::single_sequence <char> SingleSequence;
@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE (testTransformExpandedLabels) {
     // BumpChar only takes sequence semirings with "char", so this tests
     // transformExpandedLabels properly.
     auto transformed = flipsta::transformExpandedLabels (
-        example, BumpChar(), example.descriptor());
+        example, BumpChar(), example->descriptor());
 
     typedef decltype (transformed) TransformedAutomaton;
 

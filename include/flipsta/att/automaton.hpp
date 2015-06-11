@@ -23,7 +23,7 @@ limitations under the License.
 
 #include <boost/any.hpp>
 
-#include "utility/make_unique.hpp"
+#include "utility/unique_ptr.hpp"
 
 #include "math/alphabet.hpp"
 #include "math/arithmetic_magma.hpp"

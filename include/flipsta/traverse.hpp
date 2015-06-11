@@ -21,6 +21,7 @@ limitations under the License.
 #include <cassert>
 
 #include "utility/storage.hpp"
+#include "utility/pointee.hpp"
 
 #include "range/core.hpp"
 #include "range/for_each_macro.hpp"
@@ -32,7 +33,8 @@ limitations under the License.
 
 namespace flipsta {
 
-template <class Automaton, class Direction> class DepthFirstTraversalRange;
+template <class AutomatonPtr, class Direction>
+    class DepthFirstTraversalRange;
 
 /**
 \brief Traverse the automaton and return (lazily) a range of states marked with
@@ -78,21 +80,22 @@ While the returned range is being consumed, space use also rises to
 \f$\Theta(n)\f$.
 
 \param automaton
-    The automaton to traverse.
-    If this is a temporary, a copy will be kept in the returned range.
-    This could incur a copy, which might be expensive.
-    If this is a reference, this reference will be kept in the returned range.
-    It is the responsibility of the caller to take care that the automaton does
-    not go out of scope before the range does.
+    Pointer to the automaton to traverse.
+    A copy of the pointer will be kept, and destructed when the range is
+    destructed.
+    This can be a unique_ptr.
+    The automaton should not change while the range is used.
 
     The automaton must have \c states() and \c arcsOnCompressed.
+
 \param direction
     The direction in which to traverse the automaton.
 */
-template <class Automaton, class Direction> inline
-    auto traverse (Automaton && automaton, Direction direction)
-RETURNS (DepthFirstTraversalRange <Automaton, Direction> (
-    std::forward <Automaton> (automaton)));
+template <class AutomatonPtr, class Direction> inline
+    auto traverse (AutomatonPtr && automaton, Direction direction)
+RETURNS (DepthFirstTraversalRange <
+    typename std::decay <AutomatonPtr>::type, Direction> (
+        std::forward <AutomatonPtr> (automaton)));
 
 /**
 Indicate the meaning of the state during depth-first traversal.
@@ -133,9 +136,15 @@ arise while traversing the automaton in a depth-first search.
 
 This is non-copyable but it is moveable.
 */
-template <class Automaton, class Direction> class DepthFirstTraversalRange {
+template <class AutomatonPtr, class Direction>
+    class DepthFirstTraversalRange
+{
 public:
-    typedef typename std::decay <Automaton>::type::State State;
+    static_assert (std::is_same <AutomatonPtr,
+        typename std::decay <AutomatonPtr>::type>::value,
+        "AutomatonPtr must be unqualified.");
+    typedef typename utility::pointee <AutomatonPtr>::type Automaton;
+    typedef typename Automaton::State State;
     typedef TraversedState <State> Report;
 
 private:
@@ -204,8 +213,8 @@ private:
     */
 
     // If Automaton is a reference type, then store it as an assignable type.
-    typename utility::storage::store <Automaton>::type automaton_;
-    Automaton && automaton() const { return automaton_; }
+    AutomatonPtr automaton_;
+    Automaton const & automaton() const { return *automaton_; }
 
     /**
     A view on the roots of the trees still left to traverse.
@@ -246,8 +255,9 @@ private:
     }
 
 public:
-    DepthFirstTraversalRange (Automaton && automaton)
-    : automaton_ (std::forward <Automaton> (automaton)),
+    template <class QAutomatonPtr>
+    DepthFirstTraversalRange (QAutomatonPtr && automaton)
+    : automaton_ (std::forward <QAutomatonPtr> (automaton)),
         roots (range::view (states (this->automaton()))),
         visitStatus (unvisited), queue()
     { assertInvariants(); }
@@ -257,13 +267,13 @@ public:
         = delete;
 
     DepthFirstTraversalRange (DepthFirstTraversalRange && that)
-    : automaton_ (std::forward <Automaton> (that.automaton_)),
+    : automaton_ (std::move (that.automaton_)),
         roots (std::move (that.roots)),
         visitStatus (std::move (that.visitStatus)),
         queue (std::move (that.queue)) {}
 
     DepthFirstTraversalRange & operator= (DepthFirstTraversalRange && that) {
-        this->automaton_ = std::forward <Automaton> (that.automaton_);
+        this->automaton_ = std::move (that.automaton_);
         this->roots = std::move (that.roots);
         this->visitStatus = std::move (that.visitStatus);
         this->queue = std::move (that.queue);
@@ -357,8 +367,8 @@ public:
 
 namespace range {
 
-    template <class Automaton, class Direction> struct tag_of_qualified <
-        flipsta::DepthFirstTraversalRange <Automaton, Direction>>
+    template <class AutomatonPtr, class Direction> struct tag_of_qualified <
+        flipsta::DepthFirstTraversalRange <AutomatonPtr, Direction>>
     { typedef flipsta::DepthFirstTraversalRangeTag type; };
 
     namespace operation {

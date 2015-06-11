@@ -20,6 +20,7 @@ limitations under the License.
 #include <boost/python/class.hpp>
 #include <boost/python/def.hpp>
 #include <boost/python/errors.hpp>
+#include <boost/python/register_ptr_to_python.hpp>
 
 #include "utility/returns.hpp"
 
@@ -212,7 +213,8 @@ namespace flipsta { namespace python {
     */
     template <class Automaton>
         inline typename AnyRange <typename StateType <Automaton>::type>::type
-        topologicalOrder (Automaton const & automaton, bool forward)
+        topologicalOrder (
+            std::shared_ptr <Automaton> const & automaton, bool forward)
     {
         typedef typename AnyRange <typename StateType <Automaton>::type>::type
             Result;
@@ -230,7 +232,8 @@ namespace flipsta { namespace python {
     */
     template <class Automaton> inline
         typename AnyRange <boost::python::object>::type
-            shortestDistanceAcyclicFrom (Automaton const & automaton,
+            shortestDistanceAcyclicFrom (
+                std::shared_ptr <Automaton> const & automaton,
                 typename StateType <Automaton>::type const & state,
                 bool forward)
     {
@@ -251,7 +254,8 @@ namespace flipsta { namespace python {
     */
     template <class Automaton> inline
         typename AnyRange <boost::python::object>::type
-            shortestDistanceAcyclic (Automaton const & automaton,
+            shortestDistanceAcyclic (
+                std::shared_ptr <Automaton> const & automaton,
                 range::python_range <range::python_range <
                     typename StateType <Automaton>::type,
                     typename LabelType <Automaton>::type>> initialStates,
@@ -281,7 +285,25 @@ namespace flipsta { namespace python {
         flipsta::draw (os, automaton, horizontal);
     }
 
-}} // namespace flipsta::python
+} // namespace python
+
+/** \brief
+Allow Boost.Python to deal with std::shared_ptr to Automaton objects.
+
+This can be picked up because of argument-dependent lookup: Automaton is in this
+namespace.
+A general version of this function that can deal with all std::shared_ptr's
+would be in namespace boost::python or namespace std, both unappetising choices.
+It might also conflict with a later update of Boost.Python.
+This overload will be picked over more general overloads, but that should do no
+harm.
+*/
+template <class State, class Label>
+inline Automaton <State, Label> * get_pointer (
+    std::shared_ptr <Automaton <State, Label>> const & p)
+{ return p.get(); }
+
+} // namespace flipsta
 
 namespace {
     /// Boost.Python return value policy that returns a view of the result
@@ -317,7 +339,7 @@ void exposeAutomaton() {
     // Make GCC 4.6 happy by first assigning this to a variable.
     auto statesFunction = &states <Automaton>;
 
-    class_ <Automaton> ("Automaton")
+    class_ <Automaton, std::shared_ptr <Automaton>> ("Automaton")
         .def ("add_state", &Automaton::addState)
         .def ("has_state", &Automaton::hasState)
         .def ("states", statesFunction, ViewOfArgument <1>())

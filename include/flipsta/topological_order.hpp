@@ -43,7 +43,7 @@ This file is in three parts:
 namespace operation {
 
     // This is declared in core.hpp but repeated here.
-    template <class AutomatonTag, class Automaton, class Direction,
+    template <class AutomatonTag, class AutomatonPtr, class Direction,
         class Enable /*= void*/>
     struct TopologicalOrder;
 
@@ -56,16 +56,17 @@ namespace callable {
     struct TopologicalOrder {
         template <class ...> struct apply;
 
-        template <class Automaton, class Direction>
-            struct apply <Automaton, Direction>
-        : operation::TopologicalOrder <typename AutomatonTag <Automaton>::type,
-            Automaton, typename std::decay <Direction>::type> {};
+        template <class AutomatonPtr, class Direction>
+            struct apply <AutomatonPtr, Direction>
+        : operation::TopologicalOrder <typename
+            PtrAutomatonTag <AutomatonPtr>::type,
+            AutomatonPtr, typename std::decay <Direction>::type> {};
 
-        template <class Automaton, class Direction>
-            auto operator() (Automaton && automaton,
+        template <class AutomatonPtr, class Direction>
+            auto operator() (AutomatonPtr && automaton,
                 Direction const & direction) const
-        RETURNS (apply <Automaton, Direction>() (
-            std::forward <Automaton> (automaton), direction));
+        RETURNS (apply <AutomatonPtr, Direction>() (
+            std::forward <AutomatonPtr> (automaton), direction));
     };
 
 } // namespace callable
@@ -87,8 +88,12 @@ A specialised implementation can be provided for some automata.
 An example is automata based on products of automata, for which this can be a
 lazy list which takes up less space.
 
-\param automaton The automaton to find the topological order of.
-\param direction The direction to use, of type Forward or Backward.
+\param automaton
+    Pointer to the automaton to find the topological order of.
+    If the order is computed lazily, then a copy of this pointer may be kept
+    until the result type is destructed.
+\param direction
+    The direction to use, of type Forward or Backward.
 
 \throw AutomatonNotAcyclic
     Iff the automaton is not acyclic (so that topological order is not defined).
@@ -110,39 +115,43 @@ namespace operation {
 
     // TopologicalOrder.
     // Call .topologicalOrder() if it is available.
-    template <class Automaton, class Direction, class Enable = void>
+    template <class AutomatonPtr, class Direction, class Enable = void>
         struct TopologicalOrderMember
     : operation::Unimplemented {};
 
-    template <class Automaton, class Direction>
-        struct TopologicalOrderMember <Automaton, Direction, typename
-            EnableIfMember <Automaton, decltype (std::declval <Automaton>()
-                .topologicalOrder (std::declval <Direction>()))>::type>
+    template <class AutomatonPtr, class Direction>
+        struct TopologicalOrderMember <AutomatonPtr, Direction, typename
+            EnableIfMember <AutomatonPtr, decltype (
+                std::declval <AutomatonPtr>()->topologicalOrder (
+                    std::declval <Direction>()))>::type>
     {
         auto operator() (
-            Automaton && automaton, Direction const & direction) const
-        RETURNS (
-            std::forward <Automaton> (automaton).topologicalOrder (direction));
+            AutomatonPtr && automaton, Direction const & direction) const
+        RETURNS (std::forward <AutomatonPtr> (automaton)
+            ->topologicalOrder (direction));
     };
 
     /* TopologicalOrder. */
     /*
     Automatic implementation.
     */
-    template <class Automaton, class Direction, class Enable = void>
+    template <class AutomatonPtr, class Direction, class Enable = void>
         struct TopologicalOrderAutomatic
     : Unimplemented {};
 
-    template <class Automaton, class Direction>
-        struct TopologicalOrderAutomatic <Automaton, Direction>
+    template <class AutomatonPtr, class Direction>
+        struct TopologicalOrderAutomatic <AutomatonPtr, Direction>
     {
-        range::view_of_shared <
-            std::deque <typename StateType <Automaton>::type>>
-        operator() (Automaton && automaton, Direction direction) const
+        typedef typename PtrStateType <AutomatonPtr>::type State;
+
+        range::view_of_shared <std::deque <State>>
+            operator() (AutomatonPtr && automaton, Direction direction)
+            const
         {
-            typedef typename StateType <Automaton>::type State;
             std::deque <State> result;
-            RANGE_FOR_EACH (report, traverse (automaton, direction)) {
+            RANGE_FOR_EACH (report, traverse (
+                std::forward <AutomatonPtr> (automaton), direction))
+            {
                 if (report.event == TraversalEvent::finishVisit)
                     result.push_front (report.state);
                 else {
@@ -156,12 +165,12 @@ namespace operation {
         }
     };
 
-    template <class AutomatonTag, class Automaton, class Direction,
+    template <class AutomatonTag, class AutomatonPtr, class Direction,
         class Enable /*= void*/>
     struct TopologicalOrder
     : TryAllIfDirection <Direction,
-        TopologicalOrderMember <Automaton, Direction>,
-        TopologicalOrderAutomatic <Automaton, Direction>> {};
+        TopologicalOrderMember <AutomatonPtr, Direction>,
+        TopologicalOrderAutomatic <AutomatonPtr, Direction>> {};
 
 } // namespace operation
 

@@ -60,7 +60,7 @@ template <class Distances, class Reference>
 }
 
 BOOST_AUTO_TEST_CASE (testAcyclicShortestDistance) {
-    auto automaton = acyclicExample();
+    auto automaton = utility::shared_from_unique (acyclicExample());
 
     typedef math::cost <float> Cost;
 

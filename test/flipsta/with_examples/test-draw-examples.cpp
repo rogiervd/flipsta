@@ -72,15 +72,15 @@ BOOST_AUTO_TEST_CASE (testDrawExamples) {
             << fileName << std::endl;
     }
 
-    testDraw (index, fileName, 1, acyclicExample());
-    testDraw (index, fileName, 2, acyclicSequenceExample());
+    testDraw (index, fileName, 1, *acyclicExample());
+    testDraw (index, fileName, 2, *acyclicSequenceExample());
 
-    testDraw (index, fileName, 3, prefixExample());
-    testDraw (index, fileName, 4, suffixExample());
+    testDraw (index, fileName, 3, *prefixExample());
+    testDraw (index, fileName, 4, *suffixExample());
 
     auto alphabet = std::make_shared <math::alphabet <std::string>>();
-    testDraw (index, fileName, 5, hypothesisExample (alphabet));
-    testDraw (index, fileName, 6, referenceExample (alphabet));
+    testDraw (index, fileName, 5, *hypothesisExample (alphabet));
+    testDraw (index, fileName, 6, *referenceExample (alphabet));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

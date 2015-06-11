@@ -27,6 +27,9 @@ It may be better to formulate invariants that must be satisfied instead.
 #include "flipsta/traverse.hpp"
 
 #include <iostream>
+#include <memory>
+
+#include "utility/unique_ptr.hpp"
 
 #include "math/arithmetic_magma.hpp"
 
@@ -71,10 +74,11 @@ template <class Range> inline void printReports (Range && range) {
     }
 }
 
-template <class State, class Direction, class Automaton, class Reference>
-    void compare (Automaton const & automaton, Reference const & reference_)
+template <class State, class Direction, class AutomatonPointer, class Reference>
+    void compare (AutomatonPointer && automaton, Reference const & reference_)
 {
-    auto traversedStates = flipsta::traverse (automaton, Direction());
+    auto traversedStates = flipsta::traverse (
+        std::forward <AutomatonPointer> (automaton), Direction());
     static_assert (std::is_constructible <
         decltype (traversedStates), decltype (traversedStates) &&>::value,
         "The range must be moveable.");
@@ -111,17 +115,17 @@ template <class State, class Direction, class Automaton, class Reference>
 template <class State> void checkTraverseSimple() {
     typedef flipsta::Automaton <State, float> Automaton;
 
-    Automaton automaton;
+    auto automaton = std::make_shared <Automaton>();
 
-    automaton.addState (1);
-    automaton.addState (2);
-    automaton.addState (3);
+    automaton->addState (1);
+    automaton->addState (2);
+    automaton->addState (3);
 
-    automaton.addArc (1, 1, .5);
-    automaton.addArc (1, 2, 4);
-    automaton.addArc (1, 3, 2);
-    automaton.addArc (2, 1, -5);
-    automaton.addArc (3, 2, 10.5);
+    automaton->addArc (1, 1, .5);
+    automaton->addArc (1, 2, 4);
+    automaton->addArc (1, 3, 2);
+    automaton->addArc (2, 1, -5);
+    automaton->addArc (3, 2, 10.5);
 
     typedef flipsta::TraversedState <State> Report;
     typedef flipsta::TraversalEvent Event;
@@ -188,17 +192,17 @@ BOOST_AUTO_TEST_CASE (testTraverseMove) {
 
     utility::tracked_registry registry;
     {
-        Automaton automaton;
+        auto automaton = std::make_shared <Automaton>();
 
-        automaton.addState (State (registry, 1));
-        automaton.addState (State (registry, 2));
-        automaton.addState (State (registry, 3));
+        automaton->addState (State (registry, 1));
+        automaton->addState (State (registry, 2));
+        automaton->addState (State (registry, 3));
 
-        automaton.addArc (State (registry, 1), State (registry, 1), .5);
-        automaton.addArc (State (registry, 1), State (registry, 2), 4);
-        automaton.addArc (State (registry, 1), State (registry, 3), 2);
-        automaton.addArc (State (registry, 2), State (registry, 1), -5);
-        automaton.addArc (State (registry, 3), State (registry, 2), 10.5);
+        automaton->addArc (State (registry, 1), State (registry, 1), .5);
+        automaton->addArc (State (registry, 1), State (registry, 2), 4);
+        automaton->addArc (State (registry, 1), State (registry, 3), 2);
+        automaton->addArc (State (registry, 2), State (registry, 1), -5);
+        automaton->addArc (State (registry, 3), State (registry, 2), 10.5);
 
         auto traversedStates = traverse (automaton, forward);
 
@@ -243,29 +247,30 @@ Test with multiple root nodes.
 template <class State> void checkTraverseComplex() {
     typedef flipsta::Automaton <State, float> Automaton;
 
-    Automaton automaton;
+    // unique_ptr.
+    auto automaton = utility::make_unique <Automaton>();
 
-    automaton.addState ('a');
-    automaton.addState ('b');
-    automaton.addState ('c');
-    automaton.addState ('d');
-    automaton.addState ('e');
-    automaton.addState ('f');
-    automaton.addState ('g');
-    automaton.addState ('h');
+    automaton->addState ('a');
+    automaton->addState ('b');
+    automaton->addState ('c');
+    automaton->addState ('d');
+    automaton->addState ('e');
+    automaton->addState ('f');
+    automaton->addState ('g');
+    automaton->addState ('h');
 
-    automaton.addArc ('a', 'b', 1);
-    automaton.addArc ('b', 'c', 1);
-    automaton.addArc ('a', 'c', 1);
-    automaton.addArc ('a', 'f', 1);
-    automaton.addArc ('f', 'g', 1);
-    automaton.addArc ('g', 'a', 1);
-    automaton.addArc ('g', 'c', 1);
+    automaton->addArc ('a', 'b', 1);
+    automaton->addArc ('b', 'c', 1);
+    automaton->addArc ('a', 'c', 1);
+    automaton->addArc ('a', 'f', 1);
+    automaton->addArc ('f', 'g', 1);
+    automaton->addArc ('g', 'a', 1);
+    automaton->addArc ('g', 'c', 1);
 
-    automaton.addArc ('d', 'e', 1);
-    automaton.addArc ('d', 'a', 1);
-    automaton.addArc ('d', 'f', 1);
-    automaton.addArc ('e', 'f', 1);
+    automaton->addArc ('d', 'e', 1);
+    automaton->addArc ('d', 'a', 1);
+    automaton->addArc ('d', 'f', 1);
+    automaton->addArc ('e', 'f', 1);
 
     typedef flipsta::TraversedState <State> Report;
     typedef flipsta::TraversalEvent Event;
@@ -309,7 +314,7 @@ template <class State> void checkTraverseComplex() {
     printReports (reference);
     */
 
-    compare <State, flipsta::Forward> (automaton, reference);
+    compare <State, flipsta::Forward> (std::move (automaton), reference);
 }
 
 BOOST_AUTO_TEST_CASE (testTraverseComplex) {

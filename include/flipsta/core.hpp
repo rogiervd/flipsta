@@ -29,6 +29,7 @@ Basic handling of automata.
 #include <boost/mpl/and.hpp>
 
 #include "utility/returns.hpp"
+#include "utility/pointee.hpp"
 
 #include "utility/nested_callable.hpp"
 
@@ -134,6 +135,15 @@ receives an unqualified type.
 */
 template <class Automaton> struct AutomatonTag
 : AutomatonTagUnqualified <typename std::decay <Automaton>::type> {};
+
+/**
+\brief Evaluate to a tag type for the automaton type pointed to.
+
+To mark a type as an automaton, specialise \ref AutomatonTagUnqualified, which
+receives an unqualified type.
+*/
+template <class AutomatonPtr> struct PtrAutomatonTag
+: AutomatonTag <typename utility::pointee <AutomatonPtr>::type> {};
 
 /**
 \brief Evaluate to \c true iff \a Automaton is an automaton.
@@ -554,6 +564,15 @@ template <class Automaton> struct StateType <Automaton,
 /// \endcond
 
 /**
+\brief The general type of state that the automaton pointed to uses.
+
+If \a Automaton is not an automaton, then this does not contain any type, so
+that SFINAE is possible.
+*/
+template <class AutomatonPtr> struct PtrStateType
+: StateType <typename utility::pointee <AutomatonPtr>::type> {};
+
+/**
 \brief Compute the general type of label that the automaton uses.
 
 If \a Automaton is not an automaton, then this does not contain any type, so
@@ -566,6 +585,15 @@ template <class Automaton> struct LabelType <Automaton,
     typename boost::enable_if <IsAutomaton <Automaton>>::type>
 { typedef typename std::decay <Automaton>::type::Label type; };
 /// \endcond
+
+/**
+\brief Compute the general type of label that the automaton pointed to uses.
+
+If \a Automaton is not an automaton, then this does not contain any type, so
+that SFINAE is possible.
+*/
+template <class AutomatonPtr> struct PtrLabelType
+: LabelType <typename utility::pointee <AutomatonPtr>::type> {};
 
 /**
 \brief Compute the general type of descriptor that the automaton uses.
@@ -581,6 +609,15 @@ template <class Automaton> struct DescriptorType <Automaton,
 { typedef typename std::decay <Automaton>::type::Descriptor type; };
 /// \endcond
 
+/** \brief
+Compute the general type of descriptor that the automaton pointed to uses.
+
+If \a Automaton is not an automaton, then this does not contain any type, so
+that SFINAE is possible.
+*/
+template <class AutomatonPtr> struct PtrDescriptorType
+: DescriptorType <typename utility::pointee <AutomatonPtr>::type> {};
+
 /**
 \brief Compute the compressed label type that the automaton uses.
 
@@ -595,6 +632,15 @@ template <class Automaton> struct CompressedLabelType <Automaton,
 : label::CompressedLabelType <typename DescriptorType <Automaton>::type,
     typename LabelType <Automaton>::type> {};
 /// \endcond
+
+/**
+\brief Compute the compressed label type that the automaton pointed to uses.
+
+If \a Automaton is not an automaton, then this does not contain any type, so
+that SFINAE is possible.
+*/
+template <class AutomatonPtr> struct PtrCompressedLabelType
+: CompressedLabelType <typename utility::pointee <AutomatonPtr>::type> {};
 
 /**
 \brief Return the descriptor that the automaton uses to convert between expanded

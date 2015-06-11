@@ -65,7 +65,7 @@ static_assert (!math::is::semiring <math::left,
     math::sequence <char, math::right>>::value, "");
 
 BOOST_AUTO_TEST_CASE (testAcyclicShortestDistancePrefix) {
-    auto automaton = prefixExample();
+    auto automaton = utility::shared_from_unique (prefixExample());
 
     static_assert (!flipsta::Has <
         flipsta::callable::ShortestDistanceAcyclicFrom (
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE (testAcyclicShortestDistancePrefix) {
 }
 
 BOOST_AUTO_TEST_CASE (testAcyclicShortestDistanceSuffix) {
-    auto automaton = suffixExample();
+    auto automaton = utility::shared_from_unique (suffixExample());
 
     static_assert (flipsta::Has <
         flipsta::callable::ShortestDistanceAcyclicFrom (

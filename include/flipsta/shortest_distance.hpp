@@ -27,6 +27,9 @@ Shortest-distance algorithms.
 
 #include <boost/utility/enable_if.hpp>
 
+#include "utility/pointee.hpp"
+#include "utility/unique_ptr.hpp"
+
 #include "range/core.hpp"
 #include "range/for_each_macro.hpp"
 
@@ -41,7 +44,7 @@ Shortest-distance algorithms.
 namespace flipsta {
 
 // The lazy range of compressed labels that will be returned.
-template <class Automaton, class Direction>
+template <class AutomatonPtr, class Direction>
     class ShortestDistanceAcyclicRange;
 
 namespace callable {
@@ -53,86 +56,91 @@ namespace callable {
 
     namespace shortest_distance_detail {
 
-        template <class Automaton, class Direction>
+        template <class AutomatonPtr, class Direction>
             struct CanBeImplemented
         : math::is::semiring <typename MathDirection <
                 typename Opposite <Direction>::type>::type,
             math::callable::times, math::callable::plus,
-            typename LabelType <Automaton>::type> {};
+            typename PtrLabelType <AutomatonPtr>::type> {};
 
-        template <class Automaton, class Direction>
+        template <class AutomatonPtr, class Direction>
             struct AcyclicShortestDistanceResult
         {
-            typedef decltype (descriptor (std::declval <Automaton>()).expand())
-                Expand;
+            typedef decltype (
+                descriptor (*std::declval <AutomatonPtr>()).expand()) Expand;
             typedef typename std::result_of <
                 transformation::TransformLabelsForStates (
-                    Expand, ShortestDistanceAcyclicRange <Automaton, Direction>)
+                    Expand, ShortestDistanceAcyclicRange <
+                        typename std::decay <AutomatonPtr>::type, Direction>)
                 >::type type;
         };
 
-        template <class Automaton, class Direction, class Enable = void>
+        template <class AutomatonPtr, class Direction, class Enable = void>
             struct ShortestDistanceAcyclic
         : operation::Unimplemented {};
-        template <class Automaton, class Direction, class Enable = void>
+        template <class AutomatonPtr, class Direction, class Enable = void>
             struct ShortestDistanceAcyclicFrom
         : operation::Unimplemented {};
-        template <class Automaton, class Direction, class Enable = void>
+        template <class AutomatonPtr, class Direction, class Enable = void>
             struct ShortestDistanceAcyclicCompressed
         : operation::Unimplemented {};
-        template <class Automaton, class Direction, class Enable = void>
+        template <class AutomatonPtr, class Direction, class Enable = void>
             struct ShortestDistanceAcyclicFromCompressed
         : operation::Unimplemented {};
 
         // Compressed versions.
-        template <class Automaton, class Direction>
-            struct ShortestDistanceAcyclicCompressed <Automaton, Direction,
+        template <class AutomatonPtr, class Direction>
+            struct ShortestDistanceAcyclicCompressed <AutomatonPtr, Direction,
                 typename boost::enable_if <
-                    CanBeImplemented <Automaton, Direction>>::type>
+                    CanBeImplemented <AutomatonPtr, Direction>>::type>
         {
             template <class InitialStates>
-                ShortestDistanceAcyclicRange <Automaton, Direction>
-                    operator() (Automaton && automaton,
+                ShortestDistanceAcyclicRange <
+                        typename std::decay <AutomatonPtr>::type, Direction>
+                    operator() (AutomatonPtr && automaton,
                         InitialStates && initialStates,
                         Direction const & direction) const
             {
                 static_assert (range::is_range <InitialStates>::value,
                     "InitialStates must be a range of (state, label).");
 
-                return ShortestDistanceAcyclicRange <Automaton, Direction> (
-                    std::forward <Automaton> (automaton),
+                return ShortestDistanceAcyclicRange <
+                        typename std::decay <AutomatonPtr>::type, Direction> (
+                    std::forward <AutomatonPtr> (automaton),
                     std::forward <InitialStates> (initialStates));
             }
         };
 
-        template <class Automaton, class Direction>
-            struct ShortestDistanceAcyclicFromCompressed <Automaton, Direction,
-                typename boost::enable_if <
-                    CanBeImplemented <Automaton, Direction>>::type>
+        template <class AutomatonPtr, class Direction>
+            struct ShortestDistanceAcyclicFromCompressed <
+                AutomatonPtr, Direction, typename boost::enable_if <
+                    CanBeImplemented <AutomatonPtr, Direction>>::type>
         {
-            ShortestDistanceAcyclicRange <Automaton, Direction>
-                operator() (Automaton && automaton,
-                    typename StateType <Automaton>::type const & state,
+            ShortestDistanceAcyclicRange <
+                    typename std::decay <AutomatonPtr>::type, Direction>
+                operator() (AutomatonPtr && automaton,
+                    typename PtrStateType <AutomatonPtr>::type const & state,
                     Direction const & direction)
                 const
             {
                 auto one = math::one <
-                    typename CompressedLabelType <Automaton>::type>();
-                return ShortestDistanceAcyclicRange <Automaton, Direction> (
-                    std::forward <Automaton> (automaton),
+                    typename PtrCompressedLabelType <AutomatonPtr>::type>();
+                return ShortestDistanceAcyclicRange <
+                    typename std::decay <AutomatonPtr>::type, Direction> (
+                    std::forward <AutomatonPtr> (automaton),
                     range::make_tuple (range::make_tuple (state, one)));
             }
         };
 
         // Expanded versions.
-        template <class Automaton, class Direction>
-            struct ShortestDistanceAcyclic <Automaton, Direction,
+        template <class AutomatonPtr, class Direction>
+            struct ShortestDistanceAcyclic <AutomatonPtr, Direction,
                 typename boost::enable_if <
-                    CanBeImplemented <Automaton, Direction>>::type>
+                    CanBeImplemented <AutomatonPtr, Direction>>::type>
         {
             template <class InitialStates> typename
-                AcyclicShortestDistanceResult <Automaton, Direction>::type
-                    operator() (Automaton && automaton,
+                AcyclicShortestDistanceResult <AutomatonPtr, Direction>::type
+                    operator() (AutomatonPtr && automaton,
                         InitialStates && initialStates,
                         Direction const & direction) const
             {
@@ -140,39 +148,40 @@ namespace callable {
                     "InitialStates must be a range of (state, label).");
 
                 // Make a compressed version of the initial states.
-                auto compress = flipsta::descriptor (automaton).compress();
+                auto compress = flipsta::descriptor (*automaton).compress();
                 auto compressedInitialStates =
                     transformation::TransformLabelsForStates() (
                         compress, std::forward <InitialStates> (initialStates));
 
                 // Return the expanded version of the compressed states.
                 // Use the descriptor before moving the automaton.
-                auto expand = flipsta::descriptor (automaton).expand();
-                ShortestDistanceAcyclicCompressed <Automaton, Direction>
+                auto expand = flipsta::descriptor (*automaton).expand();
+                ShortestDistanceAcyclicCompressed <AutomatonPtr, Direction>
                     implementation;
                 return transformation::TransformLabelsForStates() (expand,
-                    implementation (std::forward <Automaton> (automaton),
+                    implementation (std::forward <AutomatonPtr> (automaton),
                         std::move (compressedInitialStates), direction));
             }
         };
 
-        template <class Automaton, class Direction>
-            struct ShortestDistanceAcyclicFrom <Automaton, Direction,
+        template <class AutomatonPtr, class Direction>
+            struct ShortestDistanceAcyclicFrom <AutomatonPtr, Direction,
                 typename boost::enable_if <
-                    CanBeImplemented <Automaton, Direction>>::type>
+                    CanBeImplemented <AutomatonPtr, Direction>>::type>
         {
-            typename AcyclicShortestDistanceResult <Automaton, Direction>::type
-                operator() (Automaton && automaton,
-                    typename StateType <Automaton>::type const & state,
+            typename AcyclicShortestDistanceResult <
+                    AutomatonPtr, Direction>::type
+                operator() (AutomatonPtr && automaton,
+                    typename PtrStateType <AutomatonPtr>::type const & state,
                     Direction const & direction)
                 const
             {
-                // Use the descriptor before moving the automaton.
-                auto expand = flipsta::descriptor (automaton).expand();
-                ShortestDistanceAcyclicFromCompressed <Automaton, Direction>
+                // Use the descriptor before moving the automaton pointer.
+                auto expand = flipsta::descriptor (*automaton).expand();
+                ShortestDistanceAcyclicFromCompressed <AutomatonPtr, Direction>
                     implementation;
                 return transformation::TransformLabelsForStates() (expand,
-                    implementation (std::forward <Automaton> (automaton),
+                    implementation (std::forward <AutomatonPtr> (automaton),
                         state, direction));
             }
         };
@@ -181,9 +190,10 @@ namespace callable {
         template <template <class, class, class> class Apply> struct Callable {
             template <class ...> struct apply : operation::Unimplemented {};
 
-            template <class Automaton, class Initial, class Direction>
-                struct apply <Automaton, Initial, Direction>
-            : Apply <Automaton, typename std::decay <Direction>::type, void> {};
+            template <class AutomatonPtr, class Initial, class Direction>
+                struct apply <AutomatonPtr, Initial, Direction>
+            : Apply <AutomatonPtr, typename std::decay <Direction>::type, void>
+            {};
 
             template <class ... Arguments>
                 auto operator() (Arguments && ... arguments) const
@@ -239,12 +249,12 @@ However, traversal of the states uses topological order, which by default uses
 \f$\Theta(n)\f$ space.
 
 \param automaton
-    The automaton to traverse.
-    If this is a temporary, a copy will be kept in the returned range.
-    This could incur a copy, which might be expensive.
-    If this is a reference, this reference will be kept in the returned range.
-    It is the responsibility of the caller to take care that the automaton does
-    not go out of scope before the range does.
+    Pointer to the automaton to traverse.
+    A copy of the pointer will be kept, and destructed when the range is
+    destructed.
+    The pointer must be copyable, and therefore cannot be a unique_ptr.
+    The automaton should not change while the range is used.
+
     The automaton must have \c states() and \c arcsOnCompressed.
 
 \param initialStates
@@ -286,21 +296,40 @@ For each state, the arcs going out of it are "relaxed", that is, the
 intermediate shortest distances to the destinations are updated.
 After that, the state can be forgotten.
 */
-template <class Automaton, class Direction> class ShortestDistanceAcyclicRange {
+template <class AutomatonPtr, class Direction>
+    class ShortestDistanceAcyclicRange
+{
 private:
-    typedef typename std::decay <decltype (range::view (topologicalOrder (
-            std::declval <Automaton>(), std::declval <Direction>())))>::type
+    static_assert (std::is_same <AutomatonPtr,
+        typename std::decay <AutomatonPtr>::type>::value,
+        "AutomatonPtr must be unqualified.");
+
+    static_assert (!utility::is_unique_ptr <AutomatonPtr>::value,
+        "Sorry, the pointer to the automaton must be copyable, and "
+        "therefore cannot be a unique_ptr. "
+        "It needs to be shared internally. "
+        "You may want to use shared_ptr instead.");
+    static_assert (
+        std::is_constructible <AutomatonPtr, AutomatonPtr const &>::value,
+        "Sorry, the pointer to the automaton must be copyable. "
+        "It needs to be shared internally. "
+        "You may want to use, say, std::shared_ptr.");
+
+    typedef typename std::decay <decltype (topologicalOrder (
+            std::declval <AutomatonPtr>(), std::declval <Direction>()))>::type
         Order;
 
     static_assert (range::is_homogeneous <Order>::value,
         "Only implemented for homogeneous topologicalOrder.");
+
+    typedef typename utility::pointee <AutomatonPtr>::type Automaton;
 
     typedef typename StateType <Automaton>::type State;
 
     typedef typename label::GeneraliseSemiring <
         typename std::decay <Automaton>::type::CompressedLabel>::type Label;
 
-    Automaton automaton;
+    AutomatonPtr automaton;
     Order order;
     // denseCover is set to false, because we will remove distances as soon as
     // we can.
@@ -315,9 +344,10 @@ public:
         Initial weights for states.
         This is used only once, during construction.
     */
-    template <class InitialStates> ShortestDistanceAcyclicRange (
-        Automaton && automaton, InitialStates && initialStates)
-    : automaton (std::forward <Automaton> (automaton)),
+    template <class QAutomatonPtr, class InitialStates>
+        ShortestDistanceAcyclicRange (
+            QAutomatonPtr && automaton, InitialStates && initialStates)
+    : automaton (std::forward <QAutomatonPtr> (automaton)),
         order (topologicalOrder (this->automaton, Direction())),
         distances (math::zero <Label>(),
             std::forward <InitialStates> (initialStates)) {}
@@ -335,7 +365,8 @@ public:
         // After relaxing all arcs out of this state, we do not need the
         // distance to this state any more, so remove it to save memory.
         distances.remove (state);
-        RANGE_FOR_EACH (arc, arcsOnCompressed (automaton, Direction(), state)) {
+        RANGE_FOR_EACH (arc, arcsOnCompressed (*automaton, Direction(), state))
+        {
             // Relax this arc.
             State next = arc.state (Direction());
             auto newLabel = times (Direction(), stateDistance, arc.label());
@@ -352,9 +383,9 @@ struct ShortestDistanceAcyclicRangeTag;
 namespace range {
 
     // Mark ShortestDistanceAcyclicRange as a range.
-    template <class Automaton, class Direction>
+    template <class AutomatonPtr, class Direction>
         struct tag_of_qualified <
-            flipsta::ShortestDistanceAcyclicRange <Automaton, Direction>>
+            flipsta::ShortestDistanceAcyclicRange <AutomatonPtr, Direction>>
     { typedef flipsta::ShortestDistanceAcyclicRangeTag type; };
 
 } // namespace range

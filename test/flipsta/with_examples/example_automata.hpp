@@ -39,33 +39,37 @@ Then run Graphviz dot to turn the .dot files into a drawing.
 Example from Cormen et al. (2009), that is not yet topologically sorted.
 The six states (r, s, t, x, y, z) are called (d, c, a, f, b, e).
 */
-flipsta::Automaton <char, math::cost <float>> acyclicExample();
+std::unique_ptr <flipsta::Automaton <char, math::cost <float>>>
+    acyclicExample();
 
 /**
 The same example as acyclicExample, but then with symbols attached.
 Also, the link between t and z ('a' and 'e') has a cost of 2.5, to disambiguate.
 */
-flipsta::Automaton <char,
+std::unique_ptr <flipsta::Automaton <char,
     math::lexicographical <math::over <
-        math::cost <float>, math::single_sequence <char>>>>
+        math::cost <float>, math::single_sequence <char>>>>>
     acyclicSequenceExample();
 
 /**
 Example automaton that has paths with a common prefix of one character.
 */
-flipsta::Automaton <int, math::single_sequence <char, math::left>>
+std::unique_ptr <flipsta::Automaton <
+        int, math::single_sequence <char, math::left>>>
     prefixExample();
 
 /**
 Example automaton that has paths with a common suffix of two characters.
 */
-flipsta::Automaton <int, math::single_sequence <char, math::right>>
+std::unique_ptr <flipsta::Automaton <
+        int, math::single_sequence <char, math::right>>>
     suffixExample();
 
-flipsta::Automaton <int, math::optional_sequence <std::string>>
+std::unique_ptr <flipsta::Automaton <
+        int, math::optional_sequence <std::string>>>
     hypothesisExample (std::shared_ptr <math::alphabet <std::string>>);
 
-flipsta::Automaton <char, math::single_sequence <std::string>>
+std::unique_ptr <flipsta::Automaton <char, math::single_sequence <std::string>>>
     referenceExample (std::shared_ptr <math::alphabet <std::string>>);
 
 #endif // FLIPSTA_TEST_EXAMPLE_AUTOMATA_HPP_INCLUDED
