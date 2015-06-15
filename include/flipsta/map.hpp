@@ -167,8 +167,8 @@ public:
     {
         static_assert (!hasDefault,
             "You must pass a default value when constructing this Map.");
-        range::for_each (map_detail::InsertKeyValue <Map> (*this),
-            std::forward <Range> (initialValues));
+        range::for_each (std::forward <Range> (initialValues),
+            map_detail::InsertKeyValue <Map> (*this));
     }
 
     /**
@@ -188,8 +188,8 @@ public:
     : WithDefault (defaultValue) {
         static_assert (hasDefault,
             "You cannot pass a default value when constructing this Map.");
-        range::for_each (map_detail::InsertKeyValue <Map> (*this),
-            std::forward <Range> (initialValues));
+        range::for_each (std::forward <Range> (initialValues),
+            map_detail::InsertKeyValue <Map> (*this));
     }
 
     /**
@@ -280,8 +280,8 @@ public:
         boost::enable_if <range::is_range <Range>>::type>
     Map (Value const & defaultValue, Range && initialValues)
     : defaultValue_ (defaultValue) {
-        range::for_each (map_detail::InsertKeyValue <Map> (*this),
-            std::forward <Range> (initialValues));
+        range::for_each (std::forward <Range> (initialValues),
+            map_detail::InsertKeyValue <Map> (*this));
     }
 
     rime::true_type contains (Dense <Key> const & key) const

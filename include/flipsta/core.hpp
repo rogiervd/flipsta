@@ -802,16 +802,14 @@ namespace transformation {
             // It may have to be consumed carefully to make sure that this also
             // works on a range that allows traversal only once.
             template <class StateAndLabel_> struct result {
-                typedef typename range::result_of <
-                        range::callable::view_once (StateAndLabel_)>::type
-                    StateAndLabel;
-                typedef typename range::result_of <range::callable::first (
-                    StateAndLabel const &)>::type State;
-                typedef typename range::result_of <
-                    range::callable::first (range::callable::drop (
-                        StateAndLabel &&))>::type Label;
-                typedef typename std::result_of <ConvertLabel const (Label)
-                    >::type ConvertedLabel;
+                typedef decltype (range::view_once (
+                    std::declval <StateAndLabel_>())) StateAndLabel;
+                typedef decltype (range::first (
+                    std::declval <StateAndLabel const &>())) State;
+                typedef decltype (range::first (range::drop (
+                        std::declval <StateAndLabel &&>()))) Label;
+                typedef decltype (std::declval <ConvertLabel const>() (
+                    std::declval <Label>())) ConvertedLabel;
 
                 typedef range::tuple <typename std::decay <State>::type,
                     typename std::decay <ConvertedLabel>::type> type;
@@ -834,9 +832,8 @@ namespace transformation {
     public:
         template <class ConvertLabel, class Range>
             auto operator() (ConvertLabel convertLabel, Range && range) const
-        RETURNS (range::transform (
-            ConvertStateAndLabel <ConvertLabel> (convertLabel),
-            std::forward <Range> (range)));
+        RETURNS (range::transform (std::forward <Range> (range),
+            ConvertStateAndLabel <ConvertLabel> (convertLabel)));
     };
 
     /**
@@ -886,8 +883,8 @@ namespace transformation {
     public:
         template <class ConvertLabel, class Range>
             auto operator() (ConvertLabel convertLabel, Range && range) const
-        RETURNS (range::transform (TransformArc <ConvertLabel> (convertLabel),
-            std::forward <Range> (range)));
+        RETURNS (range::transform (std::forward <Range> (range),
+            TransformArc <ConvertLabel> (convertLabel)));
     };
 
 } // namespace transformation

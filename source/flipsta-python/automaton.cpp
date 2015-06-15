@@ -151,8 +151,9 @@ namespace flipsta { namespace python {
             typedef typename AnyRange <Element>::type Result;
 
             Result operator() (Arguments && ... arguments) const {
-                return Result (range::transform (ConvertTo <Element>(),
-                    Callable() (std::forward <Arguments> (arguments) ...)));
+                return Result (range::transform (
+                    Callable() (std::forward <Arguments> (arguments) ...),
+                    ConvertTo <Element>()));
             }
         };
 

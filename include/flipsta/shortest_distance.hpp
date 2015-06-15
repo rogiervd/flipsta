@@ -372,8 +372,8 @@ public:
     : automaton (automaton),
         order (topologicalOrder (automaton, Direction())),
         distances (math::zero <Label>(),
-            range::transform (PassThroughIfStateExists (automaton),
-                std::forward <InitialStates> (initialStates))) {}
+            range::transform (std::forward <InitialStates> (initialStates),
+                PassThroughIfStateExists (automaton))) {}
 
     bool empty (::direction::front) const
     { return range::empty (order); }
@@ -399,7 +399,7 @@ public:
     }
 };
 
-struct ShortestDistanceAcyclicRangeTag;
+struct ShortestDistanceAcyclicRangeTag {};
 
 } // namespace flipsta
 

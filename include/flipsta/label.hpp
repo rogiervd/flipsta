@@ -1,5 +1,5 @@
 /*
-Copyright 2014 Rogier van Dalen.
+Copyright 2014, 2015 Rogier van Dalen.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -323,7 +323,7 @@ namespace label {
             {
                 if (s.is_annihilator())
                     return math::zero <Result>();
-                return Result (range::transform (convert_symbol, s.symbols()));
+                return Result (range::transform (s.symbols(), convert_symbol));
             }
 
             template <class Direction,
@@ -337,7 +337,7 @@ namespace label {
             Result operator() (
                 math::optional_sequence <SourceSymbol, Direction> const & s)
             const
-            { return Result (range::transform (convert_symbol, s.symbols())); }
+            { return Result (range::transform (s.symbols(), convert_symbol)); }
 
             template <class Direction>
                 math::empty_sequence <TargetSymbol, Direction> operator() (
@@ -407,18 +407,16 @@ namespace label {
             RETURNS (math::make_product_over <Inverses> (
                 // Call ConvertComponent() with each descriptor and
                 // corresponding component.
-                range::transform (
-                    range::curry::call_unpack (ConvertComponent()),
-                    range::zip (descriptors_, p.components()))));
+                range::transform (range::zip (descriptors_, p.components()),
+                    range::call_unpack (ConvertComponent()))));
 
             // Convert math::lexicographical.
             template <class ... Components>
                 auto operator() (math::lexicographical <
                     math::over <Components ...>> const & l) const
             RETURNS (math::make_lexicographical_over (
-                range::transform (
-                    range::curry::call_unpack (ConvertComponent()),
-                    range::zip (descriptors_, l.components()))));
+                range::transform (range::zip (descriptors_, l.components()),
+                    range::call_unpack (ConvertComponent()))));
         };
 
         typedef ConvertLabel <callable::Compress> Compress;

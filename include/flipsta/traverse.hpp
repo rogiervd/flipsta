@@ -128,7 +128,9 @@ template <class State> struct TraversedState {
     : state (state), event (event) {}
 };
 
-struct DepthFirstTraversalRangeTag;
+namespace operation {
+    struct DepthFirstTraversalRangeTag {};
+} // namespace operation
 
 /** \brief
 Lazy range that contains elements of type <c>TraversedState \<State></c> that
@@ -363,22 +365,24 @@ public:
     }
 };
 
+namespace operation {
+
+    template <class Range>
+        inline auto implement_chop (DepthFirstTraversalRangeTag,
+            Range && range, direction::front const & direction)
+    RETURNS (range::helper::chop_by_chop_in_place (
+        std::forward <Range> (range), direction));
+
+} // namespace operation
+
+
 } // namespace flipsta
 
 namespace range {
 
     template <class AutomatonPtr, class Direction> struct tag_of_qualified <
         flipsta::DepthFirstTraversalRange <AutomatonPtr, Direction>>
-    { typedef flipsta::DepthFirstTraversalRangeTag type; };
-
-    namespace operation {
-
-        template <class Range> struct chop <
-            flipsta::DepthFirstTraversalRangeTag, direction::front, Range &&>
-        : chop_by_chop_in_place <flipsta::DepthFirstTraversalRangeTag,
-            direction::front, Range &&> {};
-
-    } // namespace operation
+    { typedef flipsta::operation::DepthFirstTraversalRangeTag type; };
 
 } // namespace range
 
