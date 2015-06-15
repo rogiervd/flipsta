@@ -9,13 +9,19 @@ env:
   - VARIANT=release
 
 before_install:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo apt-get update -qq
   - wget https://github.com/boostorg/build/raw/develop/src/contrib/boost.jam -O ~/boost.jam
   - echo -e 'import boost ;\nboost.use-project ;\n using gcc ;\n using clang ;\n using python ;' > ~/user-config.jam
   - cat ~/user-config.jam
 
 install:
+  # Use GCC 4.8.
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - sudo apt-get install -qq libboost1.48-all-dev python-dev
+  - if [ "$CXX" = "g++" ]; then
+      sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90;
+    fi
   # Download newer version (>= 1.10) of lcov than Ubuntu 12.04 (1.09) has.
   - if [ "$VARIANT" == "debug" ]; then
       wget -O lcov.tar.gz http://downloads.sourceforge.net/ltp/lcov-1.11.tar.gz;
