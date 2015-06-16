@@ -30,6 +30,9 @@ currently.
 
 #include "flipsta/att/automaton.hpp"
 
+#include <iostream>
+#include <ostream>
+
 #include <boost/exception/all.hpp>
 
 #include "range/walk_size.hpp"
@@ -69,7 +72,7 @@ BOOST_AUTO_TEST_CASE (from_example) {
             auto startStates = flipsta::terminalStates (
                 *automaton, flipsta::forward);
             BOOST_CHECK_EQUAL (range::walk_size (startStates), 1u);
-            auto && weight = third (second (first (startStates)).components());
+            auto weight = third (second (first (startStates)).components());
             BOOST_CHECK_EQUAL (weight.value(), 0);
         }
 
