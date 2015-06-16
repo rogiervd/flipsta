@@ -164,7 +164,6 @@ BOOST_AUTO_TEST_CASE (testSquareSequence) {
     auto example = utility::shared_from_unique (prefixExample());
 
     typedef math::empty_sequence <char> EmptySequence;
-    typedef math::single_sequence <char> SingleSequence;
     typedef math::sequence <char> Sequence;
 
     auto transformed = flipsta::transformLabels (
