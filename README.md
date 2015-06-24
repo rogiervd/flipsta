@@ -10,6 +10,7 @@ Finite-state automata look like this:
 Branch | Build/test | Test coverage
 -------|------------|--------------
 master | [![Build Status](https://travis-ci.org/rogiervd/flipsta.svg?branch=master)](https://travis-ci.org/rogiervd/flipsta) | [![Coverage Status](https://coveralls.io/repos/rogiervd/flipsta/badge.svg?branch=master)](https://coveralls.io/r/rogiervd/flipsta?branch=master)
+develop | [![Build Status](https://travis-ci.org/rogiervd/flipsta.svg?branch=develop)](https://travis-ci.org/rogiervd/flipsta) | [![Coverage Status](https://coveralls.io/repos/rogiervd/flipsta/badge.svg?branch=develop)](https://coveralls.io/r/rogiervd/flipsta?branch=develop)
 
 ## Using the Flipsta library
 
