@@ -10,6 +10,8 @@ The name "Flipsta" evokes rapid state changes.
 Also, it cleverly hides the acronym for "finite-state automaton" in plain view:
 **F**\ lip\ **s**\ t\ **a**.
 
+The source code is on `GitHub`_.
+
 .. rubric:: License
 
 The Flipsta library is licensed under the Apache License, Version 2.0.
@@ -92,3 +94,4 @@ Other libraries that deal with finite-state automata are:
 *   `The RWTH FSA Toolkit <http://www-i6.informatik.rwth-aachen.de/~kanthak/fsa.html>`_, from RWTH Aachen University.
 
 .. _semiring: http://en.wikipedia.org/wiki/Semiring
+.. _GitHub: https://github.com/rogiervd/flipsta
