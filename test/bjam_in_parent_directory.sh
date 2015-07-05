@@ -18,8 +18,8 @@ set -o nounset
 set -o errexit
 
 (
-    # Check out the "master" branch of "flipsta-build" from GitHub, in the parent
-    # directory.
+    # Check out the "master" branch of "flipsta-build" from GitHub, in the
+    # parent directory.
 
     cd ../
     git clone git://github.com/rogiervd/flipsta-build.git
@@ -31,7 +31,7 @@ set -o errexit
     rm -r flipsta
     ln -s ../flipsta
 
-    # Test it
-    bjam test "$@"
+    # Run the tests.
+    bjam "$@"
 
 )
