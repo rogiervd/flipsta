@@ -2,7 +2,7 @@ import python ;
 
 project
     : requirements
-      <library>/boost//python
+      <conditional>@appropriate_boost_python
     ;
 
 local rule run-test ( test-name : sources + )
@@ -25,4 +25,4 @@ run-test test-automaton-viterbi :
 
 python-extension check_objects : check_objects.cpp ;
 run-test test-objects :
-    /flipsta//flipsta-python check_objects test-objects.py ;
+    /flipsta//flipsta-python check_objects test-objects.py cost.py ;

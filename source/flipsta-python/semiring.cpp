@@ -88,7 +88,10 @@ void exposeSemiring() {
         .def (self * self)
         // self_ns:: is needed to disambiguate.
         .def (self_ns::str (self))
+        // For Python 2.
         .def ("__nonzero__", &Zero::nonzero)
+        // For Python 3.
+        .def ("__bool__", &Zero::nonzero)
         .add_static_property ("instance", &Zero::get)
         ;
     defineOperatorsWith <One> (zeroClass);

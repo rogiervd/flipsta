@@ -2,7 +2,7 @@ import python ;
 
 project flipsta-python
     : requirements
-      <library>/boost//python
+      <conditional>@appropriate_boost_python
       <library>/flipsta//flipsta
     : default-build
       <c++-template-depth>1024
