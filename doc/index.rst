@@ -21,7 +21,8 @@ The Flipsta library is licensed under the Apache License, Version 2.0.
 Development of this library was funded by
 
 -   EPSRC Project EP/I006583/1 (Generative Kernels and Score Spaces for Classification of Speech) within the Global Uncertainties Programme;
--   a Google Research Award.
+-   a Google Research Award;
+-   the ALTA Institute at the University of Cambridge.
 
 .. rubric:: Contents
 
