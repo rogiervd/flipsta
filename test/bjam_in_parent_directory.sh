@@ -17,6 +17,16 @@ set -ev
 set -o nounset
 set -o errexit
 
+BRANCH=${1}
+shift
+
+# If the branch is "master", check out the master branch of range-test.
+# Otherwise, check out the develop branch of range-test.
+if [ x${BRANCH} != xmaster ]
+then
+    BRANCH=develop
+fi
+
 (
     # Check out the "master" branch of "flipsta-build" from GitHub, in the
     # parent directory.
@@ -24,7 +34,8 @@ set -o errexit
     cd ../
     git clone git://github.com/rogiervd/flipsta-build.git
     cd flipsta-build
-    git checkout master
+    echo Checking out branch ${BRANCH} of flipsta-build...
+    git checkout ${BRANCH}
     git submodule init
     git submodule update
     # Then replace the "flipsta" submodule with the one in ../flipsta.

@@ -54,7 +54,7 @@ script:
       TARGET="flipsta/test//flipsta-python";
     fi
   # It just so happens that ${CC} corresponds to the Boost.Build toolset name.
-  - ./test/bjam_in_parent_directory.sh -j2 ${TARGET} toolset=${CC} variant=${VARIANT} ${COVERAGE}
+  - ./test/bjam_in_parent_directory.sh ${TRAVIS_BRANCH} -j2 ${TARGET} toolset=${CC} variant=${VARIANT} ${COVERAGE}
 
 after_success:
   # For debug builds, report coverage on coveralls.io.
