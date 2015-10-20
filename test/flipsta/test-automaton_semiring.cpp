@@ -24,13 +24,13 @@ limitations under the License.
 #include "range/std/container.hpp"
 
 #include "math/cost.hpp"
-#include "math/check/check_magma.hpp"
-#include "math/check/check_hash.hpp"
+#include "math/check/report_check_magma_boost_test.hpp"
 
 typedef math::cost <float> Cost;
 
 typedef flipsta::AutomatonSemiring <char, Cost> AutomatonSemiring;
-typedef flipsta::label::DefaultDescriptorFor <AutomatonSemiring>::type Descriptor;
+typedef flipsta::label::DefaultDescriptorFor <AutomatonSemiring>::type
+    Descriptor;
 
 BOOST_AUTO_TEST_SUITE(test_automaton_semiring)
 
@@ -129,30 +129,33 @@ BOOST_AUTO_TEST_CASE (spot) {
 BOOST_AUTO_TEST_CASE (all) {
     Descriptor descriptor;
     {
-        std::vector <AutomatonSemiring> examples;
+        std::vector <AutomatonSemiring> unequal_examples;
 
-        examples.push_back (AutomatonSemiring());
-        examples.push_back (AutomatonSemiring (math::zero <Cost>()));
-        examples.push_back (AutomatonSemiring (math::one <Cost>()));
-        examples.push_back (AutomatonSemiring (Cost (5)));
+        unequal_examples.push_back (AutomatonSemiring (math::zero <Cost>()));
+        unequal_examples.push_back (AutomatonSemiring (math::one <Cost>()));
+        unequal_examples.push_back (AutomatonSemiring (Cost (5)));
 
         AutomatonSemiring s1 (descriptor, Cost (0), 'a');
         AutomatonSemiring s2 (descriptor, Cost (2), 'b');
         AutomatonSemiring s3 (descriptor, Cost (7), 'c');
         AutomatonSemiring s4 (descriptor, Cost (2), 'a');
 
-        examples.push_back (s1);
-        examples.push_back (s2);
-        examples.push_back (s3);
-        examples.push_back (s4);
-        examples.push_back (s1 + s2 + s3);
-        examples.push_back (s1 * s2);
-        examples.push_back (s1 * s2 + s3);
-        examples.push_back (s1 * s2 + s3 + s4);
+        unequal_examples.push_back (s1);
+        unequal_examples.push_back (s2);
+        unequal_examples.push_back (s3);
+        unequal_examples.push_back (s4);
+        unequal_examples.push_back (s1 + s2 + s3);
+        unequal_examples.push_back (s1 * s2);
+        unequal_examples.push_back (s1 * s2 + s3);
+        unequal_examples.push_back (s1 * s2 + s3 + s4);
 
-        math::check_semiring <AutomatonSemiring, math::left> (
-            math::times, math::plus, examples);
-        math::check_hash (examples);
+        std::vector <AutomatonSemiring> examples = unequal_examples;
+
+        examples.push_back (AutomatonSemiring());
+
+        math::report_check_semiring <AutomatonSemiring, math::left> (
+            math::times, math::plus, unequal_examples, examples);
+        math::report_check_hash (examples);
     }
 }
 
