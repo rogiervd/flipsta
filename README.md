@@ -5,7 +5,7 @@ Finite-state automata look like this:
 
 <img src="doc/example.png" alt="Example of a finite-state automaton" width="300px">
 
-[The documentation of the library is here](http://mi.eng.cam.ac.uk/~rcv25/code-documentation/flipsta/).
+[The documentation of the library is here](https://www.vandalen.uk/code-documentation/flipsta/).
 
 Branch | Build/test | Test coverage
 -------|------------|--------------
@@ -14,7 +14,7 @@ develop | [![Build Status](https://travis-ci.org/rogiervd/flipsta.svg?branch=dev
 
 ## Using the Flipsta library
 
-For more details, see the [documentation](http://mi.eng.cam.ac.uk/~rcv25/code-documentation/flipsta/flipsta/using.html).
+For more details, see the [documentation](https://www.vandalen.uk/code-documentation/flipsta/flipsta/using.html).
 
 However, not that you want to clone *not* this repository, but the `flipsta-build`, which contains this repository and its dependencies as submodules:
 
@@ -28,7 +28,7 @@ Then, try to build it:
     bjam
     bjam test
 
-And, most likely, [find out how to fix what has gone wrong](http://mi.eng.cam.ac.uk/~rcv25/code-documentation/flipsta/flipsta/using.html#building-the-library).
+And, most likely, [find out how to fix what has gone wrong](https://www.vandalen.uk/code-documentation/flipsta/flipsta/using.html#building-the-library).
 
 ## License
 
